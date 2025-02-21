@@ -1,12 +1,15 @@
+# app.py
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import io
-from PIL import Image
-import numpy as np
-from ultralytics import YOLO
+import base64
 
-app = FastAPI(title="Unia.app - Microserviço de Segmentação")
+# Importa os módulos que criamos
+from tasks import enqueue_image_processing, redis_conn
+from rq.job import Job
+
+app = FastAPI(title="Unia.app - Microserviço com Fila de Jobs")
 
 # Configuração do CORS para permitir chamadas de qualquer origem
 app.add_middleware(
@@ -19,16 +22,9 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": "Unia.app - Microserviço de Segmentação está ativo."}
+    return {"message": "Unia.app - Microserviço está ativo."}
 
-# Carrega o modelo de segmentação
-model_path = "model/nails_seg_yolov8.pt"  # Certifique-se de que o arquivo está na pasta 'model'
-try:
-    model = YOLO(model_path)
-except Exception as e:
-    print("Erro ao carregar o modelo:", e)
-    model = None
-
+# Endpoint original para inferência (processamento síncrono)
 @app.post("/infer")
 async def infer(file: UploadFile = File(...)):
     if not file:
@@ -39,42 +35,42 @@ async def infer(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=422, detail=f"Erro ao ler o arquivo: {e}")
     
+    # Aqui chamamos diretamente a função síncrona (process_image) para testes rápidos
     try:
-        image = Image.open(io.BytesIO(contents)).convert("RGB")
+        from processing import process_image
+        result_base64 = process_image(contents, prompt="")  # Sem prompt, apenas para teste
     except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Erro ao abrir a imagem: {e}")
+        raise HTTPException(status_code=422, detail=str(e))
     
-    image_np = np.array(image)
-    
+    # Retorna o resultado como uma resposta JSON com a imagem em base64
+    return JSONResponse({"mask": "data:image/png;base64," + result_base64})
+
+# Novo endpoint para enfileirar o processamento
+@app.post("/enqueue")
+async def enqueue_endpoint(file: UploadFile = File(...), prompt: str = ""):
     try:
-        results = model(image_np)
+        image_data = await file.read()
     except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Erro durante a inferência: {e}")
-    
-    try:
-        # Converte explicitamente para um array NumPy
-        mask_data = np.array(results[0].masks.data)
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Erro ao extrair a máscara: {e}")
-    
-    if mask_data.shape[0] > 0:
-        try:
-            combined_mask = np.any(mask_data > 0.5, axis=0).astype(np.uint8) * 255
-        except Exception as e:
-            raise HTTPException(status_code=422, detail=f"Erro ao combinar as máscaras: {e}")
-    else:
-        combined_mask = np.zeros(image_np.shape[:2], dtype=np.uint8)
+        raise HTTPException(status_code=400, detail="Erro ao ler o arquivo")
     
     try:
-        mask_image = Image.fromarray(combined_mask, mode="L")
+        job_id = enqueue_image_processing(image_data, prompt)
     except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Erro ao criar a imagem da máscara: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro ao enfileirar o job: {e}")
     
-    buf = io.BytesIO()
+    return JSONResponse({"job_id": job_id})
+
+# Novo endpoint para consultar o status de um job
+@app.get("/job/{job_id}")
+async def get_job_status(job_id: str):
     try:
-        mask_image.save(buf, format="PNG")
+        job = Job.fetch(job_id, connection=redis_conn)
     except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Erro ao salvar a imagem da máscara: {e}")
-    buf.seek(0)
+        raise HTTPException(status_code=404, detail="Job not found")
     
-    return StreamingResponse(buf, media_type="image/png")
+    response = {
+        "job_id": job_id,
+        "status": job.get_status(),
+        "result": job.result  # Este campo terá o resultado (a imagem em base64) se o job estiver concluído
+    }
+    return JSONResponse(response)

@@ -1,47 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
-  const [image, setImage] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [jobStatus, setJobStatus] = useState("");
   const [result, setResult] = useState<string | null>(null);
+
+  // A variável de ambiente NEXT_PUBLIC_UNIA3_URL deve apontar para a URL pública do seu backend.
+  const backendUrl = process.env.NEXT_PUBLIC_UNIA3_URL || "";
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setImage(e.target.files[0]);
+      setFile(e.target.files[0]);
     }
   };
 
   const handleGenerate = async () => {
-    if (!image || !prompt) {
+    if (!file || !prompt) {
       alert("Por favor, selecione uma imagem e preencha o prompt.");
       return;
     }
     setLoading(true);
     setResult(null);
+    setJobId(null);
+    setJobStatus("");
+
+    // Cria o FormData para enviar o arquivo e o prompt para o backend
     const formData = new FormData();
-    formData.append("image", image);
+    formData.append("file", file);
     formData.append("prompt", prompt);
 
     try {
-      const response = await fetch("/api/generate", {
+      // Chama o endpoint /enqueue do seu backend para enfileirar o job
+      const res = await fetch(`${backendUrl}/enqueue`, {
         method: "POST",
         body: formData,
       });
-      const data = await response.json();
-      if (data.result) {
-        setResult(data.result);
+      const data = await res.json();
+      if (data.job_id) {
+        setJobId(data.job_id);
       } else {
-        alert("Erro: " + data.error);
+        alert("Erro ao enfileirar job: " + data.error);
+        setLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-      alert("Ocorreu um erro ao gerar a imagem.");
+    } catch (error) {
+      console.error("Erro ao enfileirar o job:", error);
+      alert("Ocorreu um erro ao enfileirar o job.");
+      setLoading(false);
     }
-    setLoading(false);
   };
+
+  // Implementa polling para consultar o status do job a cada 5 segundos
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (jobId) {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch(`${backendUrl}/job/${jobId}`);
+          const data = await res.json();
+          setJobStatus(data.status);
+          if (data.status === "finished" && data.result) {
+            setResult(data.result);
+            clearInterval(interval);
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error("Erro ao consultar o job:", error);
+        }
+      }, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [jobId, backendUrl]);
 
   return (
     <div className="container">
@@ -68,10 +101,13 @@ export default function Home() {
           {loading ? "Gerando unha, espere..." : "Gerar unha editada"}
         </button>
       </div>
+      {loading && jobStatus && (
+        <p style={{ marginTop: "1rem" }}>Status do Job: {jobStatus}</p>
+      )}
       {result && (
         <div className="result">
           <h2>Resultado:</h2>
-          <img src={result} alt="Unha Editada" />
+          <img src={`data:image/png;base64,${result}`} alt="Unha Editada" />
         </div>
       )}
       <style jsx>{`
