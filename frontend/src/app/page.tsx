@@ -24,6 +24,10 @@ export default function Home() {
       alert("Por favor, selecione uma imagem e preencha o prompt.");
       return;
     }
+
+    // Log para verificar o valor do prompt
+    console.log("Prompt enviado:", prompt);
+
     setLoading(true);
     setResult(null);
     setJobId(null);

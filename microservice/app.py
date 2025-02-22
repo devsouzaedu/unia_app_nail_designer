@@ -1,5 +1,5 @@
 # app.py
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import io
@@ -35,7 +35,7 @@ async def infer(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=422, detail=f"Erro ao ler o arquivo: {e}")
     
-    # Aqui chamamos diretamente a função síncrona (process_image) para testes rápidos
+    # Chama diretamente a função síncrona (process_image) para testes rápidos
     try:
         from processing import process_image
         result_base64 = process_image(contents, prompt="")  # Sem prompt, apenas para teste
@@ -45,9 +45,12 @@ async def infer(file: UploadFile = File(...)):
     # Retorna o resultado como uma resposta JSON com a imagem em base64
     return JSONResponse({"mask": "data:image/png;base64," + result_base64})
 
-# Novo endpoint para enfileirar o processamento
+# Novo endpoint para enfileirar o processamento, utilizando Form para extrair o prompt do FormData
 @app.post("/enqueue")
-async def enqueue_endpoint(file: UploadFile = File(...), prompt: str = ""):
+async def enqueue_endpoint(
+    file: UploadFile = File(...), 
+    prompt: str = Form(...)
+):
     try:
         image_data = await file.read()
     except Exception as e:
