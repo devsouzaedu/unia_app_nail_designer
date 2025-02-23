@@ -4,8 +4,10 @@ from redis import Redis
 from rq import Queue
 from processing import process_image
 
-# Recupera a URL do Redis a partir da variável de ambiente, com fallback para localhost
-redis_url = os.environ.get("REDIS_URL", "redis://host.docker.internal:6379")
+redis_url = os.environ.get("REDIS_URL")
+if not redis_url:
+    raise ValueError("A variável de ambiente REDIS_URL não está definida.")
+
 redis_conn = Redis.from_url(redis_url)
 q = Queue(connection=redis_conn)
 
