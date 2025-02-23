@@ -5,13 +5,24 @@ import { useState, useEffect } from "react";
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState("");
+  const [email, setEmail] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const [loading, setLoading] = useState(false);
   const [jobId, setJobId] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState("");
   const [result, setResult] = useState<string | null>(null);
+  const [testCount, setTestCount] = useState<number>(0);
 
-  // A variável de ambiente NEXT_PUBLIC_UNIA3_URL deve apontar para a URL pública do seu backend.
+  // A variável de ambiente NEXT_PUBLIC_UNIA3_URL deve apontar para a URL pública do backend.
   const backendUrl = process.env.NEXT_PUBLIC_UNIA3_URL || "";
+
+  // Carrega o número de testes já realizados do localStorage, se existir.
+  useEffect(() => {
+    const storedCount = localStorage.getItem("testCount");
+    if (storedCount) {
+      setTestCount(Number(storedCount));
+    }
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -20,12 +31,17 @@ export default function Home() {
   };
 
   const handleGenerate = async () => {
-    if (!file || !prompt) {
-      alert("Por favor, selecione uma imagem e preencha o prompt.");
+    if (!file || !prompt || !email || !whatsapp) {
+      alert("Por favor, selecione uma imagem e preencha os campos de prompt, email e WhatsApp.");
       return;
     }
 
-    // Log para verificar o valor do prompt
+    // Verifica se o limite de testes foi atingido (3 testes)
+    if (testCount >= 3) {
+      alert("Você atingiu o limite de 3 testes. Clique no link para saber mais.");
+      return;
+    }
+
     console.log("Prompt enviado:", prompt);
 
     setLoading(true);
@@ -33,13 +49,14 @@ export default function Home() {
     setJobId(null);
     setJobStatus("");
 
-    // Cria o FormData para enviar o arquivo e o prompt para o backend
+    // Cria o FormData para enviar os dados para o backend
     const formData = new FormData();
     formData.append("file", file);
     formData.append("prompt", prompt);
+    formData.append("email", email);
+    formData.append("whatsapp", whatsapp);
 
     try {
-      // Chama o endpoint /enqueue do seu backend para enfileirar o job
       const res = await fetch(`${backendUrl}/enqueue`, {
         method: "POST",
         body: formData,
@@ -47,6 +64,10 @@ export default function Home() {
       const data = await res.json();
       if (data.job_id) {
         setJobId(data.job_id);
+        // Incrementa o contador de testes e salva no localStorage
+        const newCount = testCount + 1;
+        setTestCount(newCount);
+        localStorage.setItem("testCount", newCount.toString());
       } else {
         alert("Erro ao enfileirar job: " + data.error);
         setLoading(false);
@@ -82,7 +103,7 @@ export default function Home() {
 
   return (
     <div className="container">
-      <h1>Unia.app - V1.00.02 </h1>
+      <h1>Unia.app - V1.00.02 <span className="beta">Beta</span></h1>
       <div className="form">
         <label className="file-label">
           Selecione a imagem da sua mão:
@@ -97,13 +118,45 @@ export default function Home() {
             className="prompt-input"
           />
         </label>
+        <label className="email-label">
+          Email:
+          <input
+            type="email"
+            placeholder="Digite seu email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input-field"
+          />
+        </label>
+        <label className="whatsapp-label">
+          WhatsApp:
+          <input
+            type="tel"
+            placeholder="Digite seu WhatsApp"
+            value={whatsapp}
+            onChange={(e) => setWhatsapp(e.target.value)}
+            className="input-field"
+          />
+        </label>
         <button
           className="generate-button"
           onClick={handleGenerate}
-          disabled={loading}
+          disabled={loading || testCount >= 3}
         >
-          {loading ? "Gerando unha, espere..." : "Gerar unha editada"}
+          {loading ? (
+            <div className="spinner"></div>
+          ) : (
+            "Gerar unha editada"
+          )}
         </button>
+        {testCount >= 3 && (
+          <p className="limit-msg">
+            Você atingiu o limite de 3 testes.{" "}
+            <a href="https://seulink.com/saibamais" target="_blank" rel="noopener noreferrer">
+              Saiba mais
+            </a>
+          </p>
+        )}
       </div>
       {loading && jobStatus && (
         <p style={{ marginTop: "1rem" }}>Status do Job: {jobStatus}</p>
@@ -131,6 +184,11 @@ export default function Home() {
           margin-bottom: 2rem;
           color: #f48fb1;
         }
+        .beta {
+          font-size: 1rem;
+          color: #ec407a;
+          margin-left: 0.5rem;
+        }
         .form {
           display: flex;
           flex-direction: column;
@@ -140,13 +198,17 @@ export default function Home() {
           max-width: 400px;
         }
         .file-label,
-        .prompt-label {
+        .prompt-label,
+        .email-label,
+        .whatsapp-label {
           width: 100%;
           display: flex;
           flex-direction: column;
           font-size: 1rem;
         }
-        .file-input {
+        .file-input,
+        .prompt-input,
+        .input-field {
           margin-top: 0.5rem;
           background: #2c2c3c;
           color: #fff;
@@ -155,15 +217,12 @@ export default function Home() {
           border-radius: 8px;
         }
         .prompt-input {
-          margin-top: 0.5rem;
-          width: 100%;
           height: 100px;
-          background: #2c2c3c;
-          color: #fff;
-          border: none;
           padding: 0.75rem;
-          border-radius: 8px;
           resize: none;
+        }
+        .input-field {
+          height: 40px;
         }
         .generate-button {
           background: #f48fb1;
@@ -174,6 +233,10 @@ export default function Home() {
           cursor: pointer;
           font-size: 1.1rem;
           transition: background 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 200px;
         }
         .generate-button:disabled {
           opacity: 0.6;
@@ -181,6 +244,27 @@ export default function Home() {
         }
         .generate-button:hover:not(:disabled) {
           background: #ec407a;
+        }
+        .spinner {
+          border: 4px solid rgba(0, 0, 0, 0.1);
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          border-left-color: #1e1e2f;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .limit-msg {
+          font-size: 0.9rem;
+          color: #ec407a;
+        }
+        .limit-msg a {
+          color: #f48fb1;
+          text-decoration: underline;
         }
         .result {
           margin-top: 2rem;

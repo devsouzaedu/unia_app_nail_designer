@@ -3,13 +3,14 @@ import base64
 from PIL import Image
 import numpy as np
 from ultralytics import YOLO
-import requests  # Certifique-se de que requests está no requirements.txt
+import requests
+import os
 
-# Configurações da API do Stability AI
-STABILITY_API_URL = "https://api.stability.ai/v2beta/stable-image/edit/inpaint"
-STABILITY_API_KEY = "sk-6sCMevxEIHXSz7uK7LpSvWbGte7Pxn4QtigvN74Y7GW4YZ02"
+# Configurações da API do Stability AI, obtidas via variáveis de ambiente se disponíveis
+STABILITY_API_URL = os.environ.get("STABILITY_API_URL", "https://api.stability.ai/v2beta/stable-image/edit/inpaint")
+STABILITY_API_KEY = os.environ.get("NEXT_PUBLIC_STABILITY_API_KEY", "sua_chave_default_aqui")
 
-# Headers opcionais, se necessário (ajuste conforme a documentação ou remova se não for necessário)
+# Headers opcionais, conforme a documentação da API
 OPTIONAL_HEADERS = {
     "stability-client-id": "my-awesome-app",
     "stability-client-user-id": "DiscordUser#9999",
@@ -26,32 +27,28 @@ except Exception as e:
 
 def process_image(image_data: bytes, prompt: str) -> str:
     """
-    Fluxo:
-      1. Redimensiona a imagem para 500px de largura mantendo a proporção.
-      2. Detecta as unhas e gera uma máscara (unhas em branco, fundo em preto).
+    Fluxo de processamento:
+      1. Abre a imagem, converte para RGB e limita suas dimensões para que nenhuma ultrapasse 500 pixels.
+      2. Usa o modelo YOLO para detectar unhas e gerar uma máscara (unhas em branco, fundo em preto).
       3. Envia a imagem redimensionada, a máscara e o prompt para a API de inpainting da Stability AI.
       4. Retorna a imagem editada em base64.
     """
-    # Garante que o prompt não esteja vazio; se estiver, usa um valor padrão
+    # Garante que o prompt não esteja vazio; se estiver, usa um valor padrão.
     prompt = prompt.strip() or "yellow nails"
-    print("Prompt recebido:", prompt)  # Log para depuração
+    print("Prompt recebido:", prompt)
 
     # 1. Abre a imagem e converte para RGB
     try:
         original_image = Image.open(io.BytesIO(image_data)).convert("RGB")
     except Exception as e:
         raise Exception(f"Erro ao abrir a imagem: {e}")
-    
-    # Redimensiona a imagem para 500px de largura mantendo a proporção
-    max_width = 500
-    width, height = original_image.size
-    if width != max_width:
-        ratio = max_width / float(width)
-        new_height = int(height * ratio)
-        resized_image = original_image.resize((max_width, new_height), Image.LANCZOS)
-    else:
-        resized_image = original_image.copy()
-    
+
+    # Limita as dimensões da imagem para que nenhuma ultrapasse 500 pixels (usando thumbnail)
+    max_dimension = 500
+    original_image.thumbnail((max_dimension, max_dimension), Image.LANCZOS)
+    resized_image = original_image.copy()
+    print("Dimensões da imagem redimensionada:", resized_image.size)
+
     # 2. Gera a máscara usando o modelo YOLO
     image_np = np.array(resized_image)
     try:
@@ -78,7 +75,7 @@ def process_image(image_data: bytes, prompt: str) -> str:
     except Exception as e:
         raise Exception(f"Erro ao criar a imagem da máscara: {e}")
     
-    # 3. Salva a imagem redimensionada e a máscara em buffers (PNG)
+    # 3. Salva a imagem redimensionada e a máscara em buffers (formato PNG)
     buf_image = io.BytesIO()
     try:
         resized_image.save(buf_image, format="PNG")
@@ -93,14 +90,14 @@ def process_image(image_data: bytes, prompt: str) -> str:
         raise Exception(f"Erro ao salvar a imagem da máscara: {e}")
     buf_mask.seek(0)
     
-    # 4. Monta a requisição para a API do Stability AI
+    # 4. Monta os dados para enviar para a API do Stability AI
     files = {
         "image": ("resized.png", buf_image, "image/png"),
         "mask": ("mask.png", buf_mask, "image/png")
     }
     data = {
         "prompt": prompt,
-        "output_format": "png"  # Pode ser "jpeg" ou "webp"
+        "output_format": "png"  # Pode ser alterado para "jpeg" ou "webp"
     }
     headers = {
         "Authorization": f"Bearer {STABILITY_API_KEY}",
@@ -121,5 +118,4 @@ def process_image(image_data: bytes, prompt: str) -> str:
     # 6. Retorna a imagem final editada codificada em base64
     result_image_bytes = response.content
     result_base64 = base64.b64encode(result_image_bytes).decode("utf-8")
-    
     return result_base64
