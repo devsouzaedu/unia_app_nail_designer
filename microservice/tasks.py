@@ -1,10 +1,12 @@
 # tasks.py
+import os
 from redis import Redis
 from rq import Queue
 from processing import process_image
 
-# Use host.docker.internal para acessar o Redis rodando no host
-redis_conn = Redis(host='host.docker.internal', port=6379)
+# Recupera a URL do Redis a partir da variável de ambiente, com fallback para localhost
+redis_url = os.environ.get("REDIS_URL", "redis://host.docker.internal:6379")
+redis_conn = Redis.from_url(redis_url)
 q = Queue(connection=redis_conn)
 
 def enqueue_image_processing(image_data: bytes, prompt: str) -> str:
