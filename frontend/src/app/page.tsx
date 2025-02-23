@@ -82,7 +82,7 @@ export default function Home() {
 
   return (
     <div className="container">
-      <h1>Unia.app - V1.00.0</h1>
+      <h1>Unia.app - V1.00.02 </h1>
       <div className="form">
         <label className="file-label">
           Selecione a imagem da sua mão:
