@@ -1,5 +1,5 @@
 # app.py
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Request
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import io
@@ -14,11 +14,20 @@ app = FastAPI(title="Unia.app - Microserviço com Fila de Jobs")
 # Configuração do CORS para permitir chamadas de qualquer origem
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Se preferir, especifique explicitamente ["https://unia-app-nail-designer.vercel.app"]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Opcional: Manipulador de exceção global para garantir que erros retornem os cabeçalhos CORS
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        content={"detail": exc.detail},
+        status_code=exc.status_code,
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
 
 @app.get("/")
 async def root():
