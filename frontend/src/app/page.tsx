@@ -9,18 +9,9 @@ export default function Home() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState("");
   const [result, setResult] = useState<string | null>(null);
-  const [testCount, setTestCount] = useState<number>(0);
 
   // A variável de ambiente NEXT_PUBLIC_UNIA3_URL deve apontar para a URL pública do backend.
   const backendUrl = process.env.NEXT_PUBLIC_UNIA3_URL || "";
-
-  // Carrega o número de testes já realizados do localStorage, se existir.
-  useEffect(() => {
-    const storedCount = localStorage.getItem("testCount");
-    if (storedCount) {
-      setTestCount(Number(storedCount));
-    }
-  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -31,12 +22,6 @@ export default function Home() {
   const handleGenerate = async () => {
     if (!file || !prompt) {
       alert("Por favor, selecione uma imagem e preencha o prompt.");
-      return;
-    }
-
-    // Verifica se o limite de testes foi atingido (3 testes)
-    if (testCount >= 3) {
-      alert("Você atingiu o limite de 3 testes. Clique no link para saber mais.");
       return;
     }
 
@@ -60,10 +45,6 @@ export default function Home() {
       const data = await res.json();
       if (data.job_id) {
         setJobId(data.job_id);
-        // Incrementa o contador de testes e salva no localStorage
-        const newCount = testCount + 1;
-        setTestCount(newCount);
-        localStorage.setItem("testCount", newCount.toString());
       } else {
         alert("Erro ao enfileirar job: " + data.error);
         setLoading(false);
@@ -99,7 +80,9 @@ export default function Home() {
 
   return (
     <div className="container">
-      <h1>Unia.app - V1.00.02 <span className="beta">Beta</span></h1>
+      <h1>
+        Unia.app - V1.00.02 <span className="beta">Beta</span>
+      </h1>
       <div className="form">
         <label className="file-label">
           Selecione a imagem da sua mão:
@@ -117,26 +100,12 @@ export default function Home() {
         <button
           className="generate-button"
           onClick={handleGenerate}
-          disabled={loading || testCount >= 3}
+          disabled={loading}
         >
-          {loading ? (
-            <div className="spinner"></div>
-          ) : (
-            "Gerar unha editada"
-          )}
+          {loading ? <div className="spinner"></div> : "Gerar unha editada"}
         </button>
-        {testCount >= 3 && (
-          <p className="limit-msg">
-            Você atingiu o limite de 3 testes.{" "}
-            <a href="https://seulink.com/saibamais" target="_blank" rel="noopener noreferrer">
-              Saiba mais
-            </a>
-          </p>
-        )}
       </div>
-      {loading && jobStatus && (
-        <p style={{ marginTop: "1rem" }}>Status do Job: {jobStatus}</p>
-      )}
+      {loading && jobStatus && <p style={{ marginTop: "1rem" }}>Status do Job: {jobStatus}</p>}
       {result && (
         <div className="result">
           <h2>Resultado:</h2>
@@ -227,14 +196,6 @@ export default function Home() {
           to {
             transform: rotate(360deg);
           }
-        }
-        .limit-msg {
-          font-size: 0.9rem;
-          color: #ec407a;
-        }
-        .limit-msg a {
-          color: #f48fb1;
-          text-decoration: underline;
         }
         .result {
           margin-top: 2rem;
