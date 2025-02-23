@@ -5,8 +5,6 @@ import { useState, useEffect } from "react";
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState("");
-  const [email, setEmail] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
   const [loading, setLoading] = useState(false);
   const [jobId, setJobId] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState("");
@@ -31,8 +29,8 @@ export default function Home() {
   };
 
   const handleGenerate = async () => {
-    if (!file || !prompt || !email || !whatsapp) {
-      alert("Por favor, selecione uma imagem e preencha os campos de prompt, email e WhatsApp.");
+    if (!file || !prompt) {
+      alert("Por favor, selecione uma imagem e preencha o prompt.");
       return;
     }
 
@@ -53,8 +51,6 @@ export default function Home() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("prompt", prompt);
-    formData.append("email", email);
-    formData.append("whatsapp", whatsapp);
 
     try {
       const res = await fetch(`${backendUrl}/enqueue`, {
@@ -118,26 +114,6 @@ export default function Home() {
             className="prompt-input"
           />
         </label>
-        <label className="email-label">
-          Email:
-          <input
-            type="email"
-            placeholder="Digite seu email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="input-field"
-          />
-        </label>
-        <label className="whatsapp-label">
-          WhatsApp:
-          <input
-            type="tel"
-            placeholder="Digite seu WhatsApp"
-            value={whatsapp}
-            onChange={(e) => setWhatsapp(e.target.value)}
-            className="input-field"
-          />
-        </label>
         <button
           className="generate-button"
           onClick={handleGenerate}
@@ -198,17 +174,14 @@ export default function Home() {
           max-width: 400px;
         }
         .file-label,
-        .prompt-label,
-        .email-label,
-        .whatsapp-label {
+        .prompt-label {
           width: 100%;
           display: flex;
           flex-direction: column;
           font-size: 1rem;
         }
         .file-input,
-        .prompt-input,
-        .input-field {
+        .prompt-input {
           margin-top: 0.5rem;
           background: #2c2c3c;
           color: #fff;
@@ -220,9 +193,6 @@ export default function Home() {
           height: 100px;
           padding: 0.75rem;
           resize: none;
-        }
-        .input-field {
-          height: 40px;
         }
         .generate-button {
           background: #f48fb1;
