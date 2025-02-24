@@ -114,6 +114,26 @@ export default function LabPage() {
     return () => clearInterval(interval);
   }, [jobId, backendUrl]);
 
+  // Funções para compartilhamento (aqui usamos o URL da página atual como exemplo)
+  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const shareWhatsApp = () => {
+    window.open(
+      `https://api.whatsapp.com/send?text=Confira essa unha gerada com IA: ${currentUrl}`,
+      "_blank"
+    );
+  };
+  const shareFacebook = () => {
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`,
+      "_blank"
+    );
+  };
+  // Instagram não possui URL direta de compartilhamento, então podemos copiar o link
+  const shareInstagram = () => {
+    navigator.clipboard.writeText(currentUrl);
+    alert("Link copiado para a área de transferência! Compartilhe no Instagram.");
+  };
+
   return (
     <div className="container">
       <h1>Lab - Gerador de Unhas com IA</h1>
@@ -141,32 +161,48 @@ export default function LabPage() {
       </div>
       {loading && (
         <>
-          {jobStatus && <p style={{ marginTop: "1rem" }}>Status do Job: {jobStatus}</p>}
-          <p style={{ marginTop: "1rem" }}>{loadingMessage}</p>
+          {jobStatus && <p className="status">Status do Job: {jobStatus}</p>}
+          <p className="loading-message">{loadingMessage}</p>
         </>
       )}
       {result && (
         <div className="result">
           <h2>Resultado:</h2>
-          <img src={`data:image/png;base64,${result}`} alt="Unha Editada" />
+          <img
+            className="result-image"
+            src={`data:image/png;base64,${result}`}
+            alt="Unha Editada"
+          />
+          <div className="share-buttons">
+            <button className="share-button" onClick={shareWhatsApp}>
+              Compartilhar no WhatsApp
+            </button>
+            <button className="share-button" onClick={shareInstagram}>
+              Compartilhar no Instagram
+            </button>
+            <button className="share-button" onClick={shareFacebook}>
+              Compartilhar no Facebook
+            </button>
+          </div>
         </div>
       )}
       <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
         .container {
-          background-color: #1e1e2f;
-          color: #f0f0f0;
+          background-color: #fdf4f9;
+          color: #333;
           min-height: 100vh;
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
           padding: 2rem;
-          font-family: sans-serif;
+          font-family: 'Poppins', sans-serif;
         }
         h1 {
           font-size: 2.5rem;
           margin-bottom: 2rem;
-          color: #f48fb1;
+          color: #e62e69;
         }
         .form {
           display: flex;
@@ -175,20 +211,21 @@ export default function LabPage() {
           gap: 1.5rem;
           width: 100%;
           max-width: 400px;
+          margin-bottom: 2rem;
         }
         .file-label,
         .prompt-label {
           width: 100%;
+          font-size: 1rem;
           display: flex;
           flex-direction: column;
-          font-size: 1rem;
         }
         .file-input,
         .prompt-input {
           margin-top: 0.5rem;
-          background: #2c2c3c;
-          color: #fff;
-          border: none;
+          background: #fff;
+          color: #333;
+          border: 1px solid #e62e69;
           padding: 0.5rem;
           border-radius: 8px;
         }
@@ -198,32 +235,32 @@ export default function LabPage() {
           resize: none;
         }
         .generate-button {
-          background: #f48fb1;
-          color: #1e1e2f;
+          background: #e62e69;
+          color: #fff;
           border: none;
           padding: 0.75rem 1.5rem;
           border-radius: 8px;
           cursor: pointer;
           font-size: 1.1rem;
           transition: background 0.3s ease;
+          min-width: 200px;
           display: flex;
           align-items: center;
           justify-content: center;
-          min-width: 200px;
         }
         .generate-button:disabled {
           opacity: 0.6;
           cursor: not-allowed;
         }
         .generate-button:hover:not(:disabled) {
-          background: #ec407a;
+          background: #d0225e;
         }
         .spinner {
           border: 4px solid rgba(0, 0, 0, 0.1);
           width: 24px;
           height: 24px;
           border-radius: 50%;
-          border-left-color: #1e1e2f;
+          border-left-color: #e62e69;
           animation: spin 1s linear infinite;
         }
         @keyframes spin {
@@ -231,14 +268,51 @@ export default function LabPage() {
             transform: rotate(360deg);
           }
         }
+        .status {
+          margin-top: 1rem;
+        }
+        .loading-message {
+          margin-top: 1rem;
+          font-style: italic;
+        }
         .result {
           margin-top: 2rem;
           text-align: center;
         }
-        .result img {
+        .result-image {
           max-width: 100%;
           border-radius: 8px;
+          animation: pop 0.5s ease-out;
+          margin-bottom: 1rem;
+        }
+        @keyframes pop {
+          from {
+            transform: scale(0.8);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        .share-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
           margin-top: 1rem;
+        }
+        .share-button {
+          background: #e62e69;
+          color: #fff;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 1rem;
+          transition: background 0.3s ease;
+        }
+        .share-button:hover {
+          background: #d0225e;
         }
       `}</style>
     </div>
