@@ -16,11 +16,11 @@ export default function LandingPage() {
           <div className="logo-container">
             {/* Usando o componente Image com largura e altura definidas */}
             <Image
-              src="/gallery/logo.png"
-              alt="Unia Logo"
-              width={100}
-              height={100}
-              className="logo"
+            src="/gallery/logo.png"
+            alt="Unia Logo"
+           width={120}  // ajuste conforme a proporção real da sua logo
+           height={60}  // ajuste conforme a proporção real da sua logo
+           objectFit="contain"
             />
           </div>
           <button className="hamburger" onClick={toggleMenu}>
