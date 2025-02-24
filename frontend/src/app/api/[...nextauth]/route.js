@@ -1,3 +1,5 @@
+// src/app/api/auth/[...nextauth]/route.js
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -6,6 +8,8 @@ import GoogleProvider from "next-auth/providers/google";
 
 const options = {
   secret: process.env.NEXTAUTH_SECRET,
+  // Certifique-se de que a variável NEXTAUTH_URL está definida (por exemplo, no Vercel):
+  // NEXTAUTH_URL=https://unia-app-nail-designer.onrender.com
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -17,11 +21,11 @@ const options = {
     signIn: "/auth",
     error: "/auth",
   },
-  // Redefine o logger para evitar chamadas a /api/auth/_log
+  // Silencia os logs para evitar chamadas indevidas a /api/auth/_log
   logger: {
-    debug() {},
-    warn() {},
-    error() {},
+    debug: () => {},
+    warn: () => {},
+    error: () => {},
   },
 };
 
