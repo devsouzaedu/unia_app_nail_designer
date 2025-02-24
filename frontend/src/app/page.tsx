@@ -1,6 +1,5 @@
 "use client";
 
-
 import Link from "next/link";
 
 export default function LandingPage() {
@@ -14,7 +13,7 @@ export default function LandingPage() {
           Obtenha designs de unhas deslumbrantes em minutos com nosso gerador de arte de unhas com IA.
           Descreva sua ideia, escolha seus estilos e receba designs únicos.
         </p>
-        <Link href="/lab">
+        <Link href="/auth">
           <button className="cta-button">Crie sua unha com AI</button>
         </Link>
       </header>
