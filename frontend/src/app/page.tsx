@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import Image from "next/image"; // importe o componente Image
+import Image from "next/image";
 
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -14,13 +14,12 @@ export default function LandingPage() {
       <header className="header">
         <div className="header-top">
           <div className="logo-container">
-            {/* Usando o componente Image com largura e altura definidas */}
             <Image
-            src="/gallery/logo.png"
-            alt="Unia Logo"
-           width={120}  // ajuste conforme a proporção real da sua logo
-           height={40}  // ajuste conforme a proporção real da sua logo
-           objectFit="contain"
+              src="/gallery/logo.png"
+              alt="Unia Logo"
+              width={120} // ajuste conforme a proporção real da sua logo
+              height={60} // ajuste conforme a proporção real da sua logo
+              objectFit="contain"
             />
           </div>
           <button className="hamburger" onClick={toggleMenu}>
@@ -54,7 +53,7 @@ export default function LandingPage() {
       </header>
 
       <main>
-        <section className="intro-frame">
+        <section className="intro">
           <h2>
             Unhas de Pinterest, em minutos{" "}
             <span role="img" aria-label="nail">
@@ -71,7 +70,7 @@ export default function LandingPage() {
           </Link>
         </section>
 
-        <section className="gallery-frame">
+        <section className="gallery">
           <h2>Galeria</h2>
           <div className="images">
             {Array.from({ length: 8 }).map((_, index) => (
@@ -85,7 +84,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="footer-frame">
+      <footer className="footer">
         <p>&copy; {new Date().getFullYear()} Unia. Todos os direitos reservados.</p>
       </footer>
 
@@ -93,7 +92,7 @@ export default function LandingPage() {
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
         .container {
-          background-color: #fdf3f9;
+          background-color: #fdf4f9;
           color: #333;
           min-height: 100vh;
           font-family: 'Roboto', sans-serif;
@@ -102,9 +101,6 @@ export default function LandingPage() {
 
         /* Header */
         .header {
-          background: #fff;
-          border-radius: 8px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
           padding: 1rem 2rem;
           margin-bottom: 2rem;
           position: relative;
@@ -118,10 +114,6 @@ export default function LandingPage() {
           flex: 1;
           display: flex;
           justify-content: center;
-        }
-        .logo {
-          /* As dimensões já são definidas no componente Image */
-          border-radius: 50%;
         }
         .hamburger {
           background: transparent;
@@ -169,23 +161,18 @@ export default function LandingPage() {
           flex-direction: column;
           gap: 2rem;
         }
-        .intro-frame,
-        .gallery-frame {
-          background: #fff;
-          padding: 2rem;
-          border-radius: 8px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .intro {
+          text-align: center;
+          padding: 2rem 0;
         }
-        .intro-frame h2 {
+        .intro h2 {
           font-size: 2rem;
           margin-bottom: 1.5rem;
           color: #e62e69;
-          text-align: center;
         }
         .tagline {
           font-size: 1.2rem;
           margin-bottom: 2rem;
-          text-align: center;
           color: #666;
         }
         .cta-button {
@@ -196,18 +183,19 @@ export default function LandingPage() {
           font-size: 1.2rem;
           cursor: pointer;
           color: #fff;
-          display: block;
-          margin: 0 auto;
           transition: background 0.3s;
         }
         .cta-button:hover {
           background: #d0225e;
         }
-        .gallery-frame h2 {
+        .gallery {
+          text-align: center;
+          padding: 2rem 0;
+        }
+        .gallery h2 {
           font-size: 2rem;
           margin-bottom: 1.5rem;
           color: #e62e69;
-          text-align: center;
         }
         .images {
           display: grid;
@@ -222,9 +210,9 @@ export default function LandingPage() {
         }
 
         /* Footer */
-        .footer-frame {
+        .footer {
           text-align: center;
-          padding: 1rem;
+          padding: 1rem 0;
           color: #777;
           margin-top: 2rem;
         }
