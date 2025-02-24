@@ -1,7 +1,5 @@
-// src/app/api/auth/[...nextauth]/route.js
-
-export const dynamic = "force-dynamic"; // evita pré-renderização estática
-export const revalidate = 0;            // não cacheia a rota
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
@@ -16,13 +14,17 @@ const options = {
   ],
   session: { strategy: "jwt" },
   pages: {
-    // Redireciona para /auth em caso de login ou erro
     signIn: "/auth",
     error: "/auth",
+  },
+  // Redefine o logger para evitar chamadas a /api/auth/_log
+  logger: {
+    debug() {},
+    warn() {},
+    error() {},
   },
 };
 
 const handler = NextAuth(options);
 
-// Exporta somente os handlers GET e POST
 export { handler as GET, handler as POST };
