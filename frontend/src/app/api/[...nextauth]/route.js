@@ -1,7 +1,9 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
+// Configuração do NextAuth com secret
 const options = {
+  secret: process.env.NEXTAUTH_SECRET, // Defina essa variável no .env.local e no ambiente de produção
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -9,9 +11,10 @@ const options = {
     }),
   ],
   session: { strategy: "jwt" },
+  // Outras configurações podem ser adicionadas aqui
 };
 
 const handler = NextAuth(options);
 
-// NÃO exporte authOptions ou options. Apenas os handlers abaixo:
+// Exporte somente os handlers HTTP
 export { handler as GET, handler as POST };
