@@ -1,62 +1,51 @@
 // src/app/auth/page.tsx
 "use client";
 
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
-
 export default function AuthPage() {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return <p>Carregando...</p>;
-  }
-
   return (
-    <div className="auth-wrapper">
-      <div className="auth-card">
-        <h1>Autenticação</h1>
-        {session ? (
-          <>
-            <p>Bem-vindo, {session.user?.name}</p>
-            <button className="auth-button" onClick={() => signOut()}>
-              Sair
-            </button>
-            <Link href="/lab">
-              <p className="continue">Acessar o Lab</p>
-            </Link>
-          </>
-        ) : (
-          <>
-            <p>Faça login com o Google para acessar o Lab.</p>
-            <button className="auth-button" onClick={() => signIn("google")}>
-              Entrar com Google
-            </button>
-            <Link href="/lab">
-              <p className="continue">Ou continue para o Lab (modo demo)</p>
-            </Link>
-          </>
-        )}
+    <div className="container">
+      <div className="auth-frame">
+        <h1>Login</h1>
+        <p>Digite seu email abaixo para acessar sua conta</p>
+        <button className="google-button" onClick={() => signIn("google")}>
+          <img src="/google-logo.svg" alt="Logo do Google" />
+          Continue com o Google
+        </button>
+        <div className="divider">
+          <span>ou continue com email</span>
+        </div>
+        <input type="email" placeholder="Email" disabled />
+        <input type="password" placeholder="Senha" disabled />
+        <button className="login-button" disabled>
+          Login
+        </button>
+        <p className="signup">
+          Não tem uma conta?{" "}
+          <Link href="/signup">
+            <a>Crie uma agora</a>
+          </Link>
+        </p>
       </div>
       <style jsx>{`
-        .auth-wrapper {
+        .container {
+          min-height: 100vh;
           display: flex;
           align-items: center;
           justify-content: center;
-          min-height: 100vh;
-          background: linear-gradient(135deg, #74ebd5 0%, #acb6e5 100%);
+          background: #f0f2f5;
           padding: 1rem;
         }
-        .auth-card {
+        .auth-frame {
           background: #fff;
           padding: 2rem;
           border-radius: 16px;
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-          text-align: center;
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
           max-width: 400px;
           width: 100%;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          text-align: center;
         }
         h1 {
           font-size: 2rem;
@@ -64,32 +53,82 @@ export default function AuthPage() {
           color: #333;
         }
         p {
-          margin-bottom: 1.5rem;
           color: #555;
+          margin-bottom: 1rem;
         }
-        .auth-button {
-          background: #4285f4;
-          color: #fff;
-          border: none;
-          padding: 0.75rem 1.5rem;
+        .google-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          background: #fff;
+          border: 1px solid #ccc;
+          padding: 0.75rem 1rem;
           border-radius: 8px;
           font-size: 1rem;
           cursor: pointer;
-          margin-bottom: 1rem;
+          width: 100%;
           transition: background 0.3s ease;
+          margin-bottom: 1rem;
         }
-        .auth-button:hover {
-          background: #357ae8;
+        .google-button:hover {
+          background: #f7f7f7;
         }
-        .continue {
-          color: #4285f4;
-          text-decoration: none;
-          font-weight: bold;
+        .google-button img {
+          width: 20px;
+          height: 20px;
+        }
+        .divider {
+          display: flex;
+          align-items: center;
+          text-align: center;
+          margin: 1rem 0;
+        }
+        .divider::before,
+        .divider::after {
+          content: "";
+          flex: 1;
+          border-bottom: 1px solid #ccc;
+        }
+        .divider:not(:empty)::before {
+          margin-right: 0.5em;
+        }
+        .divider:not(:empty)::after {
+          margin-left: 0.5em;
+        }
+        input {
+          width: 100%;
+          padding: 0.75rem;
+          margin-bottom: 1rem;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          font-size: 1rem;
+        }
+        .login-button {
+          width: 100%;
+          padding: 0.75rem;
+          background: #ff69b4;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          font-size: 1rem;
           cursor: pointer;
-          transition: color 0.3s ease;
+          transition: background 0.3s ease;
+          margin-bottom: 1rem;
         }
-        .continue:hover {
-          color: #357ae8;
+        .login-button:hover {
+          background: #ff4da6;
+        }
+        .signup {
+          font-size: 0.9rem;
+          color: #555;
+        }
+        .signup a {
+          color: #ff69b4;
+          text-decoration: none;
+        }
+        .signup a:hover {
+          text-decoration: underline;
         }
       `}</style>
     </div>
