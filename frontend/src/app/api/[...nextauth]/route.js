@@ -1,9 +1,13 @@
+// src/app/api/auth/[...nextauth]/route.js
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
-// Configuração do NextAuth com secret
+// Força a rota a ser renderizada dinamicamente, sem pré-renderização
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const options = {
-  secret: process.env.NEXTAUTH_SECRET, // Defina essa variável no .env.local e no ambiente de produção
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -11,10 +15,9 @@ const options = {
     }),
   ],
   session: { strategy: "jwt" },
-  // Outras configurações podem ser adicionadas aqui
 };
 
 const handler = NextAuth(options);
 
-// Exporte somente os handlers HTTP
+// Exporta somente os handlers HTTP
 export { handler as GET, handler as POST };
