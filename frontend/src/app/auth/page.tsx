@@ -9,7 +9,7 @@ export default function AuthPage() {
     <div className="container">
       <div className="auth-frame">
         <h1>Login</h1>
-        <p>Digite seu email abaixo para acessar sua conta</p>
+        <p className="subtitle">Digite seu email abaixo para acessar sua conta</p>
         <button className="google-button" onClick={() => signIn("google")}>
           <img src="/google-logo.svg" alt="Logo do Google" />
           Continue com o Google
@@ -30,6 +30,7 @@ export default function AuthPage() {
         </p>
       </div>
       <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
         .container {
           min-height: 100vh;
           display: flex;
@@ -37,10 +38,11 @@ export default function AuthPage() {
           justify-content: center;
           background: #f0f2f5;
           padding: 1rem;
+          font-family: 'Roboto', sans-serif;
         }
         .auth-frame {
           background: #fff;
-          padding: 2rem;
+          padding: 2.5rem;
           border-radius: 16px;
           box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
           max-width: 400px;
@@ -49,12 +51,12 @@ export default function AuthPage() {
         }
         h1 {
           font-size: 2rem;
-          margin-bottom: 1rem;
+          margin-bottom: 1.5rem;
           color: #333;
         }
-        p {
+        .subtitle {
           color: #555;
-          margin-bottom: 1rem;
+          margin-bottom: 2rem;
         }
         .google-button {
           display: flex;
@@ -69,7 +71,7 @@ export default function AuthPage() {
           cursor: pointer;
           width: 100%;
           transition: background 0.3s ease;
-          margin-bottom: 1rem;
+          margin-bottom: 2rem;
         }
         .google-button:hover {
           background: #f7f7f7;
@@ -82,7 +84,7 @@ export default function AuthPage() {
           display: flex;
           align-items: center;
           text-align: center;
-          margin: 1rem 0;
+          margin: 2rem 0;
         }
         .divider::before,
         .divider::after {
@@ -99,7 +101,7 @@ export default function AuthPage() {
         input {
           width: 100%;
           padding: 0.75rem;
-          margin-bottom: 1rem;
+          margin-bottom: 1.5rem;
           border: 1px solid #ccc;
           border-radius: 8px;
           font-size: 1rem;
@@ -107,24 +109,24 @@ export default function AuthPage() {
         .login-button {
           width: 100%;
           padding: 0.75rem;
-          background: #ff69b4;
+          background: #e62e69;
           color: #fff;
           border: none;
           border-radius: 8px;
           font-size: 1rem;
           cursor: pointer;
           transition: background 0.3s ease;
-          margin-bottom: 1rem;
+          margin-bottom: 2rem;
         }
         .login-button:hover {
-          background: #ff4da6;
+          background: #d0225e;
         }
         .signup {
           font-size: 0.9rem;
           color: #555;
         }
         .signup a {
-          color: #ff69b4;
+          color: #e62e69;
           text-decoration: none;
         }
         .signup a:hover {
