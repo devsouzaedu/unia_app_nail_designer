@@ -4,3 +4,4 @@ backend/node_modules/
 microservice\.env.local
 frontend/.env.local
 .env.localfrontend/.env.local
+.env.local
