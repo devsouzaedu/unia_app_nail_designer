@@ -19,7 +19,7 @@ export default function LandingPage() {
             src="/gallery/logo.png"
             alt="Unia Logo"
            width={120}  // ajuste conforme a proporção real da sua logo
-           height={60}  // ajuste conforme a proporção real da sua logo
+           height={40}  // ajuste conforme a proporção real da sua logo
            objectFit="contain"
             />
           </div>
