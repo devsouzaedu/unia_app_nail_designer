@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import Image from "next/image"; // importe o componente Image
 
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -13,8 +14,14 @@ export default function LandingPage() {
       <header className="header">
         <div className="header-top">
           <div className="logo-container">
-            {/* Certifique-se de ter a logo em /public/logo.svg ou ajuste o caminho */}
-            <img src="/gallery/logo.png" alt="Unia Logo" className="logo" />
+            {/* Usando o componente Image com largura e altura definidas */}
+            <Image
+              src="/gallery/logo.png"
+              alt="Unia Logo"
+              width={100}
+              height={100}
+              className="logo"
+            />
           </div>
           <button className="hamburger" onClick={toggleMenu}>
             <span className={`hamburger-icon ${menuOpen ? "open" : ""}`}>
@@ -113,8 +120,8 @@ export default function LandingPage() {
           justify-content: center;
         }
         .logo {
-          max-width: 100px;
-          height: auto;
+          /* As dimensões já são definidas no componente Image */
+          border-radius: 50%;
         }
         .hamburger {
           background: transparent;

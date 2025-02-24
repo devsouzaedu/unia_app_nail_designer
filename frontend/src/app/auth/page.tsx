@@ -10,7 +10,10 @@ export default function AuthPage() {
       <div className="auth-frame">
         <h1>Login</h1>
         <p className="subtitle">Digite seu email abaixo para acessar sua conta</p>
-        <button className="google-button" onClick={() => signIn("google")}>
+        <button
+          className="google-button"
+          onClick={() => signIn("google", { callbackUrl: "/lab" })}
+        >
           <img src="gallery/google-logo.svg" alt="Logo do Google" />
           Continue com o Google
         </button>
