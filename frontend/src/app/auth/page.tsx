@@ -3,14 +3,13 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
-// Força o rendering dinâmico (client-side only)
+// Força o rendering dinâmico para evitar pré-renderização
 export const dynamic = 'force-dynamic';
 
 export default function AuthPage() {
   const { data: session } = useSession();
 
   if (session === undefined) {
-    // Enquanto a sessão está carregando, exiba um estado de loading.
     return <div>Carregando...</div>;
   }
 
