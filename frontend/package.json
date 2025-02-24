@@ -9,6 +9,7 @@
     "dependencies": {
         "form-data": "^4.0.2",
         "next": "latest",
+        "next-auth": "^4.24.11",
         "react": "latest",
         "react-dom": "latest",
         "sharp": "latest"
