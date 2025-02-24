@@ -8,8 +8,6 @@ import GoogleProvider from "next-auth/providers/google";
 
 const options = {
   secret: process.env.NEXTAUTH_SECRET,
-  // Certifique-se de que a variável NEXTAUTH_URL está definida (por exemplo, no Vercel):
-  // NEXTAUTH_URL=https://unia-app-nail-designer.onrender.com
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -21,7 +19,6 @@ const options = {
     signIn: "/auth",
     error: "/auth",
   },
-  // Silencia os logs para evitar chamadas indevidas a /api/auth/_log
   logger: {
     debug: () => {},
     warn: () => {},
