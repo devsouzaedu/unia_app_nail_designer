@@ -41,10 +41,11 @@ export default function DetectAndTeachPage() {
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const response = await fetch(`${backendUrl}`, {
+      const response = await fetch(`${backendUrl}/detect-and-teach`, {
         method: "POST",
         body: formData,
       });
+      
 
       if (!response.ok) {
         throw new Error("Erro na requisição.");
