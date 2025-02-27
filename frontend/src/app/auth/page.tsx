@@ -1,15 +1,23 @@
 // src/app/auth/page.tsx
 "use client";
 
-import { signIn } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [demoCode, setDemoCode] = useState("");
   const [demoError, setDemoError] = useState("");
+
+  // Redireciona automaticamente se o usuário já estiver logado
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/lab");
+    }
+  }, [status, router]);
 
   const handleDemoLogin = () => {
     if (demoCode === "2210") {
@@ -19,6 +27,11 @@ export default function AuthPage() {
       setDemoError("Senha incorreta para o modo demo.");
     }
   };
+
+  // Enquanto a sessão estiver carregando, podemos exibir um carregamento simples
+  if (status === "loading") {
+    return <p>Carregando...</p>;
+  }
 
   return (
     <div className="container">
@@ -50,8 +63,7 @@ export default function AuthPage() {
         <div className="demo-section">
           <h2>Modo Demo</h2>
           <p>
-            Para testar o app, insira a senha demo de 4 dígitos:{" "}
-         
+            Para testar o app, insira a senha demo de 4 dígitos:
           </p>
           <input
             type="text"
