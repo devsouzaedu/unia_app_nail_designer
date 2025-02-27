@@ -12,6 +12,7 @@
         "next-auth": "^4.24.11",
         "react": "latest",
         "react-dom": "latest",
+        "react-markdown": "^10.0.0",
         "sharp": "latest"
     },
     "devDependencies": {

@@ -5,3 +5,4 @@ microservice\.env.local
 frontend/.env.local
 .env.localfrontend/.env.local
 .env.local
+microservice/detect-and-teach-nail-art/.env
