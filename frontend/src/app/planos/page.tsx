@@ -19,31 +19,47 @@ export default function PlanosPage() {
         </div>
       </div>
       <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
         .container {
           padding: 2rem;
           text-align: center;
-          font-family: sans-serif;
+          font-family: 'Roboto', sans-serif;
+          background-color: #fdf4f9;
+          min-height: 100vh;
         }
         h1 {
           font-size: 2.5rem;
           margin-bottom: 2rem;
-          color: #333;
+          color: #343a40;
         }
         .plans {
           display: flex;
           justify-content: center;
-          gap: 1rem;
+          gap: 2rem;
           flex-wrap: wrap;
         }
         .plan {
-          background: #f8f8f8;
-          border-radius: 8px;
-          padding: 1rem;
-          width: 200px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          background: #ffffff;
+          border: 2px solid #e62e69;
+          border-radius: 12px;
+          padding: 2rem;
+          width: 250px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .plan:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
         .plan h2 {
-          margin-bottom: 0.5rem;
+          margin-bottom: 1rem;
+          font-size: 1.75rem;
+          color: #e62e69;
+        }
+        .plan p {
+          font-size: 1.1rem;
+          color: #343a40;
         }
       `}</style>
     </div>

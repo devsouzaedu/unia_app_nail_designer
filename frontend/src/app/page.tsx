@@ -2,13 +2,11 @@
 "use client";
 
 import Link from "next/link";
-import Header from "../components/Header";
 import Image from "next/image";
 
 export default function LandingPage() {
   return (
     <div className="container">
-      <Header />
       <main>
         <section className="intro">
           <h2>
@@ -42,7 +40,9 @@ export default function LandingPage() {
       </main>
 
       <footer className="footer">
-        <p>&copy; {new Date().getFullYear()} Unia. Todos os direitos reservados.</p>
+        <p>
+          &copy; {new Date().getFullYear()} Unia. Todos os direitos reservados.
+        </p>
       </footer>
 
       <style jsx>{`

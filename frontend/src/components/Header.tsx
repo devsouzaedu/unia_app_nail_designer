@@ -4,7 +4,6 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -15,9 +14,6 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header-top">
-        <div className="logo">
-          <h1>Meu App</h1>
-        </div>
         <button className="hamburger" onClick={toggleMenu}>
           <span className="hamburger-icon">{menuOpen ? "✖" : "☰"}</span>
         </button>
@@ -62,21 +58,17 @@ export default function Header() {
       </nav>
 
       <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
         .header {
           background-color: #f8f9fa;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           padding: 1rem 2rem;
+          font-family: 'Roboto', sans-serif;
         }
         .header-top {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          position: relative;
-        }
-        .logo h1 {
-          font-size: 1.5rem;
-          color: #343a40;
-          margin: 0;
         }
         .hamburger {
           background: transparent;

@@ -15,7 +15,7 @@ export default function AuthPage() {
   // Redireciona automaticamente se o usuário já estiver logado
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/lab");
+      router.push("/ferramentas");
     }
   }, [status, router]);
 
