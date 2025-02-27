@@ -11,6 +11,8 @@ export default function DetectAndTeachPage() {
   const [loading, setLoading] = useState(false);
   const [conversationStarted, setConversationStarted] = useState(false);
 
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
@@ -38,7 +40,7 @@ export default function DetectAndTeachPage() {
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const response = await fetch("https://backend-web-service-detect-nails.onrender.com", {
+      const response = await fetch(`${backendUrl}`, {
         method: "POST",
         body: formData,
       });
