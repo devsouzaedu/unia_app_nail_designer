@@ -1,9 +1,9 @@
-// src/app/components/Header.tsx
+// frontend/components/Header.tsx
 "use client";
 
-import Link from "next/link";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 import Image from "next/image";
 
 export default function Header() {
@@ -15,22 +15,28 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header-top">
-        <div className="logo-container">
-          <Link href="/">
-            <Image
-              src="/gallery/logo.png"
-              alt="Unia Logo"
-              width={120} // ajuste conforme a proporção real da sua logo
-              height={60} // ajuste conforme a proporção real da sua logo
-              objectFit="contain"
-            />
-          </Link>
+        <div className="logo">
+          <h1>Meu App</h1>
         </div>
         <button className="hamburger" onClick={toggleMenu}>
-          <span className={`hamburger-icon ${menuOpen ? "open" : ""}`}>
-            ☰
-          </span>
+          <span className="hamburger-icon">{menuOpen ? "✖" : "☰"}</span>
         </button>
+        <div className="user-info">
+          {session ? (
+            <>
+              {session.user?.image && (
+                <img
+                  src={session.user.image}
+                  alt="Foto de perfil"
+                  className="profile-image"
+                />
+              )}
+              <p className="user-name">Olá, {session.user?.name}</p>
+            </>
+          ) : (
+            <p className="user-name">Olá, visitante</p>
+          )}
+        </div>
       </div>
       <nav className={`menu ${menuOpen ? "open" : ""}`}>
         <ul>
@@ -54,33 +60,47 @@ export default function Header() {
           </li>
         </ul>
       </nav>
+
       <style jsx>{`
         .header {
+          background-color: #f8f9fa;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           padding: 1rem 2rem;
-          margin-bottom: 2rem;
-          position: relative;
         }
         .header-top {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          position: relative;
         }
-        .logo-container {
-          flex: 1;
-          display: flex;
-          justify-content: center;
+        .logo h1 {
+          font-size: 1.5rem;
+          color: #343a40;
+          margin: 0;
         }
         .hamburger {
           background: transparent;
           border: none;
           font-size: 2rem;
-          color: #e62e69;
+          color: #343a40;
           cursor: pointer;
-          position: absolute;
-          top: 1rem;
-          right: 2rem;
         }
-        /* Menu com animação drop */
+        .user-info {
+          display: flex;
+          align-items: center;
+        }
+        .profile-image {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          object-fit: cover;
+          margin-right: 0.5rem;
+        }
+        .user-name {
+          font-size: 1rem;
+          color: #343a40;
+          margin: 0;
+        }
         .menu {
           overflow: hidden;
           max-height: 0;
@@ -100,10 +120,7 @@ export default function Header() {
         .menu li {
           margin-bottom: 1rem;
         }
-        .menu li:last-child {
-          margin-bottom: 0;
-        }
-        .menu a {
+        .menu li a {
           color: #e62e69;
           text-decoration: none;
           font-weight: 500;
