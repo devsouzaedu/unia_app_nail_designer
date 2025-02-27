@@ -31,7 +31,11 @@ openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 app = FastAPI(title="Detect and Teach Nail Art API")
 
 # Configuração de CORS
-origins = ["http://localhost:3000"]
+origins = [
+    "http://localhost:3000",                        # Ambiente de desenvolvimento
+    "https://unia-app-nail-designer.vercel.app"  
+    "https://backend-web-service-detect-nails.onrender.com"     # URL do frontend em produção
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

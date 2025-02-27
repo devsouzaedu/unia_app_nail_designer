@@ -38,7 +38,7 @@ export default function DetectAndTeachPage() {
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const response = await fetch("http://localhost:8000/detect-and-teach", {
+      const response = await fetch("https://backend-web-service-detect-nails.onrender.com", {
         method: "POST",
         body: formData,
       });
