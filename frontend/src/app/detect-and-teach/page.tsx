@@ -12,6 +12,7 @@ export default function DetectAndTeachPage() {
   const [conversationStarted, setConversationStarted] = useState(false);
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  console.log("DEBUG: backendUrl =", backendUrl);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
