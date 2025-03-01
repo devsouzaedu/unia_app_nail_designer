@@ -25,17 +25,30 @@ except Exception as e:
     print("Erro ao carregar o modelo:", e)
     model = None
 
-def process_image(image_data: bytes, prompt: str) -> str:
+# Mapeamento de estilos de unha para textos adicionais no prompt
+NAIL_STYLE_PROMPTS = {
+    "stiletto": "Lengthen your nails for a stiletto look",
+    "bailarina": "Shape your nails into a ballerina style",
+    "amendoada": "Transform your nails into an almond shape",
+    "quadrada": "Square your nails for a bold look"
+}
+
+def process_image(image_data: bytes, prompt: str, nail_style: str = "stiletto") -> str:
     """
     Fluxo de processamento:
       1. Abre a imagem, converte para RGB e limita suas dimensões para que nenhuma ultrapasse 500 pixels.
       2. Usa o modelo YOLO para detectar unhas e gerar uma máscara (unhas em branco, fundo em preto).
-      3. Envia a imagem redimensionada, a máscara e o prompt para a API de inpainting da Stability AI.
-      4. Retorna a imagem editada em base64.
+      3. Adiciona o texto específico do estilo de unha ao prompt.
+      4. Envia a imagem redimensionada, a máscara e o prompt para a API de inpainting da Stability AI.
+      5. Retorna a imagem editada em base64.
     """
     # Garante que o prompt não esteja vazio; se estiver, usa um valor padrão.
     prompt = prompt.strip() or "yellow nails"
-    print("Prompt recebido:", prompt)
+    
+    # Adiciona o texto do estilo de unha ao prompt
+    if nail_style in NAIL_STYLE_PROMPTS:
+        prompt = f"{NAIL_STYLE_PROMPTS[nail_style]}, {prompt}"
+    print("Prompt final enviado:", prompt)
 
     # 1. Abre a imagem e converte para RGB
     try:

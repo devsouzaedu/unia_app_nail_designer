@@ -14,6 +14,7 @@ const loadingMessages = [
 export default function LabPage() {
   const [file, setFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState("");
+  const [nailStyle, setNailStyle] = useState("stiletto"); // Estado para o estilo de unha
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
   const [jobId, setJobId] = useState<string | null>(null);
@@ -49,6 +50,7 @@ export default function LabPage() {
     }
 
     console.log("Prompt enviado:", prompt);
+    console.log("Estilo de unha selecionado:", nailStyle);
     setLoading(true);
     setResult(null);
     setJobId(null);
@@ -58,6 +60,7 @@ export default function LabPage() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("prompt", prompt);
+    formData.append("nail_style", nailStyle); // Adiciona o estilo de unha ao formData
 
     try {
       const res = await fetch(`${backendUrl}/enqueue`, {
@@ -128,7 +131,6 @@ export default function LabPage() {
       "_blank"
     );
   };
-  // Instagram não possui URL direta de compartilhamento, então podemos copiar o link
   const shareInstagram = () => {
     navigator.clipboard.writeText(currentUrl);
     alert("Link copiado para a área de transferência! Compartilhe no Instagram.");
@@ -150,6 +152,35 @@ export default function LabPage() {
             onChange={(e) => setPrompt(e.target.value)}
             className="prompt-input"
           />
+        </label>
+        <label className="nail-style-label">
+          Escolha o estilo da unha:
+          <div className="nail-style-selector">
+            <button
+              className={nailStyle === "stiletto" ? "active" : ""}
+              onClick={() => setNailStyle("stiletto")}
+            >
+              Unha Stiletto
+            </button>
+            <button
+              className={nailStyle === "bailarina" ? "active" : ""}
+              onClick={() => setNailStyle("bailarina")}
+            >
+              Unha Bailarina
+            </button>
+            <button
+              className={nailStyle === "amendoada" ? "active" : ""}
+              onClick={() => setNailStyle("amendoada")}
+            >
+              Unha Amendoada
+            </button>
+            <button
+              className={nailStyle === "quadrada" ? "active" : ""}
+              onClick={() => setNailStyle("quadrada")}
+            >
+              Unha Quadrada
+            </button>
+          </div>
         </label>
         <button
           className="generate-button"
@@ -214,7 +245,8 @@ export default function LabPage() {
           margin-bottom: 2rem;
         }
         .file-label,
-        .prompt-label {
+        .prompt-label,
+        .nail-style-label {
           width: 100%;
           font-size: 1rem;
           display: flex;
@@ -233,6 +265,31 @@ export default function LabPage() {
           height: 100px;
           padding: 0.75rem;
           resize: none;
+        }
+        .nail-style-selector {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+        }
+        .nail-style-selector button {
+          background: #fff;
+          color: #e62e69;
+          border: 1px solid #e62e69;
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          cursor: pointer;
+          font-size: 0.9rem;
+          transition: all 0.3s ease;
+        }
+        .nail-style-selector button:hover {
+          background: #e62e69;
+          color: #fff;
+        }
+        .nail-style-selector button.active {
+          background: #e62e69;
+          color: #fff;
+          font-weight: 500;
         }
         .generate-button {
           background: #e62e69;
