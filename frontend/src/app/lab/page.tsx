@@ -14,7 +14,7 @@ const loadingMessages = [
 export default function LabPage() {
   const [file, setFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState("");
-  const [nailStyle, setNailStyle] = useState("stiletto"); // Estado para o estilo de unha
+  const [nailStyle, setNailStyle] = useState<string | null>(null); // Sem pré-seleção
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
   const [jobId, setJobId] = useState<string | null>(null);
@@ -39,8 +39,8 @@ export default function LabPage() {
   };
 
   const handleGenerate = async () => {
-    if (!file || !prompt) {
-      alert("Por favor, selecione uma imagem e preencha o prompt.");
+    if (!file || !prompt || !nailStyle) {
+      alert("Por favor, selecione uma imagem, preencha o prompt e escolha um estilo de unha.");
       return;
     }
 
@@ -60,7 +60,7 @@ export default function LabPage() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("prompt", prompt);
-    formData.append("nail_style", nailStyle); // Adiciona o estilo de unha ao formData
+    formData.append("nail_style", nailStyle);
 
     try {
       const res = await fetch(`${backendUrl}/enqueue`, {
@@ -117,7 +117,7 @@ export default function LabPage() {
     return () => clearInterval(interval);
   }, [jobId, backendUrl]);
 
-  // Funções para compartilhamento (aqui usamos o URL da página atual como exemplo)
+  // Funções para compartilhamento
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
   const shareWhatsApp = () => {
     window.open(
@@ -155,7 +155,7 @@ export default function LabPage() {
         </label>
         <label className="nail-style-label">
           Escolha o estilo da unha:
-          <div className="nail-style-selector">
+          <div className="nail-style-card">
             <button
               className={nailStyle === "stiletto" ? "active" : ""}
               onClick={() => setNailStyle("stiletto")}
@@ -266,14 +266,22 @@ export default function LabPage() {
           padding: 0.75rem;
           resize: none;
         }
-        .nail-style-selector {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-          margin-top: 0.5rem;
-        }
-        .nail-style-selector button {
+        .nail-style-card {
           background: #fff;
+          border: 1px solid #e62e69;
+          border-radius: 8px;
+          padding: 1rem;
+          margin-top: 0.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          transition: box-shadow 0.3s ease;
+        }
+        .nail-style-card:hover {
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .nail-style-card button {
+          background: none;
           color: #e62e69;
           border: 1px solid #e62e69;
           padding: 0.5rem 1rem;
@@ -281,12 +289,13 @@ export default function LabPage() {
           cursor: pointer;
           font-size: 0.9rem;
           transition: all 0.3s ease;
+          text-align: center;
         }
-        .nail-style-selector button:hover {
+        .nail-style-card button:hover {
           background: #e62e69;
           color: #fff;
         }
-        .nail-style-selector button.active {
+        .nail-style-card button.active {
           background: #e62e69;
           color: #fff;
           font-weight: 500;
