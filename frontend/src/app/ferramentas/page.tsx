@@ -18,15 +18,15 @@ const tools = [
   },
   {
     name: "Strava for Nail Designers",
-    description: "Coming Soon",
+    description: "Acompanhe seu progresso e compartilhe seus designs.",
     link: "/strava",
-    disabled: true,
+    disabled: false,
   },
   {
     name: "Calculator for Nail Designers",
-    description: "Coming Soon",
+    description: "Calcule seus ganhos e gerencie agendamentos.",
     link: "/calculator",
-    disabled: true,
+    disabled: false,
   },
 ];
 
