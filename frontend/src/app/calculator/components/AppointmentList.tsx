@@ -71,7 +71,7 @@ export default function AppointmentList({ userId, refreshTrigger, onAppointmentU
 
   const markAsCompleted = async (id: string) => {
     try {
-      await axios.patch(`http://localhost:3001/api/appointments/${id}`, {
+      await axios.patch(`https://calculator-for-nail-designers.onrender.com/api/appointments/${id}`, {
         completed: true
       });
       
@@ -103,7 +103,7 @@ export default function AppointmentList({ userId, refreshTrigger, onAppointmentU
       while (retries < maxRetries && !success) {
         try {
           // Usando o endpoint correto para exclusão
-          const response = await axios.delete(`http://localhost:3001/api/appointments/${id}`);
+          const response = await axios.delete(`https://calculator-for-nail-designers.onrender.com/api/appointments/${id}`);
           console.log('Resposta da exclusão:', response.data);
           success = true;
         } catch (err) {
