@@ -6,3 +6,4 @@ frontend/.env.local
 .env.localfrontend/.env.local
 .env.local
 microservice/detect-and-teach-nail-art/.env
+microservice/strava-for-nail-designers/.env
