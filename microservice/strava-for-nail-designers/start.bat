@@ -1,0 +1,3 @@
+@echo off
+echo Iniciando o servidor Strava for Nail Designers...
+npm run dev 

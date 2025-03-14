@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -20,14 +19,9 @@ export default function LandingPage() {
             unhas com IA. Descreva sua ideia, escolha seus estilos e receba designs
             únicos.
           </p>
-          <div className="button-group">
-            <Link href="/auth">
-              <button className="cta-button">Crie sua unha com AI</button>
-            </Link>
-            <Link href="/demo">
-              <button className="demo-button">Testar Calculadora (Modo Demo)</button>
-            </Link>
-          </div>
+          <Link href="/auth">
+            <button className="cta-button">Crie sua unha com AI</button>
+          </Link>
         </section>
 
         <section className="gallery">
@@ -80,12 +74,6 @@ export default function LandingPage() {
           margin-bottom: 2rem;
           color: #666;
         }
-        .button-group {
-          display: flex;
-          justify-content: center;
-          gap: 1rem;
-          flex-wrap: wrap;
-        }
         .cta-button {
           background: #e62e69;
           border: none;
@@ -98,19 +86,6 @@ export default function LandingPage() {
         }
         .cta-button:hover {
           background: #d0225e;
-        }
-        .demo-button {
-          background: #4caf50;
-          border: none;
-          padding: 1rem 2rem;
-          border-radius: 8px;
-          font-size: 1.2rem;
-          cursor: pointer;
-          color: #fff;
-          transition: background 0.3s;
-        }
-        .demo-button:hover {
-          background: #43a047;
         }
         .gallery {
           text-align: center;

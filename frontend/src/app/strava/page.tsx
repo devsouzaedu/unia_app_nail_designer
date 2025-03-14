@@ -1,19 +1,38 @@
 // src/app/strava/page.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function StravaPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const isDemo = searchParams.get('demo') === 'true';
   const [isLoading, setIsLoading] = useState(true);
 
-  // Simulando carregamento
-  setTimeout(() => {
-    setIsLoading(false);
-  }, 1000);
+  useEffect(() => {
+    if (status !== 'loading') {
+      if (session || isDemo) {
+        // Redirecionar para a nova página strava-for
+        router.push(`/strava-for${isDemo ? '?demo=true' : ''}`);
+      } else {
+        setIsLoading(false);
+      }
+    }
+  }, [session, status, isDemo, router]);
 
-  if (isLoading) {
+  // Simulando carregamento
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading || status === 'loading') {
     return (
       <div className="loading-container">
         <div className="loading">Carregando...</div>
@@ -21,12 +40,12 @@ export default function StravaPage() {
     );
   }
 
-  if (!session || !session.user) {
+  if (!session && !isDemo) {
     return (
       <div className="auth-required">
         <h1>Acesso Restrito</h1>
         <p>Você precisa estar autenticado para acessar esta página.</p>
-        <a href="/auth" className="auth-link">Fazer Login</a>
+        <a href="/auth?redirectTo=/strava" className="auth-link">Fazer Login</a>
       </div>
     );
   }

@@ -1,0 +1,7 @@
+{
+  "clientName": "Cliente Teste",
+  "value": 100,
+  "beforePhoto": "https://example.com/test.jpg",
+  "userId": "demo-user@example.com",
+  "notes": "Teste"
+} 

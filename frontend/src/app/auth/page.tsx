@@ -4,10 +4,12 @@
 import { useSession, signIn } from "next-auth/react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AuthPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo') || '/ferramentas';
   const { data: session, status } = useSession();
   const [demoCode, setDemoCode] = useState("");
   const [demoError, setDemoError] = useState("");
@@ -15,14 +17,14 @@ export default function AuthPage() {
   // Redireciona automaticamente se o usuário já estiver logado
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/ferramentas");
+      router.push(redirectTo);
     }
-  }, [status, router]);
+  }, [status, router, redirectTo]);
 
   const handleDemoLogin = () => {
-    if (demoCode === "2210") {
-      // Redireciona para a página de ferramentas em modo demo
-      router.push("/ferramentas");
+    if (demoCode.toUpperCase() === "DEMO" || demoCode === "2210") {
+      // Redireciona para a página solicitada ou para ferramentas em modo demo
+      router.push(`${redirectTo}?demo=true`);
     } else {
       setDemoError("Senha incorreta para o modo demo.");
     }
@@ -42,7 +44,7 @@ export default function AuthPage() {
         </p>
         <button
           className="google-button"
-          onClick={() => signIn("google", { callbackUrl: "/ferramentas" })}
+          onClick={() => signIn("google", { callbackUrl: redirectTo })}
         >
           <img src="gallery/google-logo.svg" alt="Logo do Google" />
           Continue com o Google
@@ -63,7 +65,7 @@ export default function AuthPage() {
         <div className="demo-section">
           <h2>Modo Demo</h2>
           <p>
-            Para testar o app, insira a senha demo de 4 dígitos:
+            Para testar o app, insira a senha demo (DEMO ou 2210):
           </p>
           <input
             type="text"

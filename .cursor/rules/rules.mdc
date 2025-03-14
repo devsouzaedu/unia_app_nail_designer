@@ -7,3 +7,8 @@ alwaysApply: false
 # Your rule content
 
 - Responder em portugues do brasil PT-BR
+- Usar o /microservice para backend e servidores
+- usar o /frontend para frontend 
+- Sempre usar a fonte e cor padrão do site
+- Deixar responsivo para mobile
+- usar o MCP para debuggar

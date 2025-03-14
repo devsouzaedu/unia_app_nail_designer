@@ -1,1 +1,9 @@
-{}
+{
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/strava-for/route": "app/strava-for/route.js",
+  "/page": "app/page.js",
+  "/auth/page": "app/auth/page.js",
+  "/ferramentas/page": "app/ferramentas/page.js",
+  "/strava/page": "app/strava/page.js",
+  "/strava-for/page": "app/strava-for/page.js"
+}
