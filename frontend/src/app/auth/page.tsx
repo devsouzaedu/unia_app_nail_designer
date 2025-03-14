@@ -10,7 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 function Loading() {
   return (
     <div className="loading-container">
-      <div className="loading">Carregando...</div>
+      <div className="loading">Carregando.2..</div>
       <style jsx>{`
         .loading-container {
           display: flex;
