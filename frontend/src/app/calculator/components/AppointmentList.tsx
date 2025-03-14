@@ -46,7 +46,7 @@ export default function AppointmentList({ userId, refreshTrigger, onAppointmentU
 
       while (retries < maxRetries && !success) {
         try {
-          response = await axios.get(`http://localhost:3001/api/appointments/${userId}`);
+          response = await axios.get(`https://calculator-for-nail-designers.onrender.com/api/appointments/${userId}`);
           success = true;
         } catch (err) {
           retries++;

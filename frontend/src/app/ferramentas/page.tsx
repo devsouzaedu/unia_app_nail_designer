@@ -25,7 +25,7 @@ const tools = [
   {
     name: "Calculator for Nail Designers",
     description: "Calcule seus ganhos e gerencie agendamentos.",
-    link: "/calculator?demo=true",
+    link: "/calculator?demo=false",
     disabled: false,
   },
 ];

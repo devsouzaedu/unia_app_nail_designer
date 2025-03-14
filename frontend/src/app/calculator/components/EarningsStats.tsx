@@ -44,7 +44,7 @@ export default function EarningsStats({ userId, refreshTrigger }: EarningsStatsP
       while ((retries < maxRetries) && (!weeklySuccess || !monthlySuccess)) {
         try {
           if (!weeklySuccess) {
-            weeklyResponse = await axios.get(`http://localhost:3001/api/appointments/stats/weekly/${userId}`);
+            weeklyResponse = await axios.get(`https://calculator-for-nail-designers.onrender.com/api/appointments/stats/weekly/${userId}`);
             weeklySuccess = true;
           }
         } catch (err) {
@@ -53,7 +53,7 @@ export default function EarningsStats({ userId, refreshTrigger }: EarningsStatsP
 
         try {
           if (!monthlySuccess) {
-            monthlyResponse = await axios.get(`http://localhost:3001/api/appointments/stats/monthly/${userId}`);
+            monthlyResponse = await axios.get(`https://calculator-for-nail-designers.onrender.com/api/appointments/stats/monthly/${userId}`);
             monthlySuccess = true;
           }
         } catch (err) {

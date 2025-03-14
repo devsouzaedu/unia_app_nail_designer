@@ -52,7 +52,7 @@ export default function AppointmentForm({ userId, onAppointmentAdded }: Appointm
 
       while (retries < maxRetries && !success) {
         try {
-          await axios.post('http://localhost:3001/api/appointments', appointmentData);
+          await axios.post('https://calculator-for-nail-designers.onrender.com/api/appointments', appointmentData);
           success = true;
         } catch (err) {
           retries++;
