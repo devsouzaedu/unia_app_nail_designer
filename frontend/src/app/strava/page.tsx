@@ -40,7 +40,8 @@ function StravaContent() {
     if (status !== 'loading') {
       if (session || isDemo) {
         // Redirecionar para a nova página strava-for
-        router.push(`/strava-for${isDemo ? '?demo=true' : ''}`);
+        // Mantém o modo demo apenas se explicitamente solicitado como true
+        router.push(`/strava-for${isDemo ? '?demo=true' : '?demo=false'}`);
       } else {
         // Redirecionar para a página de autenticação
         router.push('/auth');

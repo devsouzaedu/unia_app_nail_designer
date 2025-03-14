@@ -19,7 +19,7 @@ const tools = [
   {
     name: "Strava for Nail Designers",
     description: "Acompanhe seu progresso e compartilhe seus designs.",
-    link: "/strava?demo=true",
+    link: "/strava?demo=false",
     disabled: false,
   },
   {
