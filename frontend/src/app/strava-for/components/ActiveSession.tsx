@@ -87,7 +87,7 @@ export default function ActiveSession({ session: initialSession, onSessionFinish
         formData.append('image', file);
         
         // Fazer upload da imagem
-        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/upload`, {
+        const uploadResponse = await fetch(`https://unia-cronometer.onrender.com/api/upload`, {
           method: 'POST',
           body: formData
         });
@@ -100,7 +100,7 @@ export default function ActiveSession({ session: initialSession, onSessionFinish
         const photoUrl = uploadData.imageUrl;
         
         // Adicionar a foto à sessão
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/strava/add-photo/${session._id}`, {
+        const response = await fetch(`https://unia-cronometer.onrender.com/api/strava/add-photo/${session._id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json'
@@ -140,7 +140,7 @@ export default function ActiveSession({ session: initialSession, onSessionFinish
         return; // Retornar aqui para evitar a execução do restante da função
       }
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/strava/notes/${session._id}`, {
+      const response = await fetch(`https://unia-cronometer.onrender.com/api/strava/notes/${session._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -215,7 +215,7 @@ export default function ActiveSession({ session: initialSession, onSessionFinish
       formData.append('image', file);
       
       // Enviar para a API
-      const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/upload`, {
+      const uploadResponse = await fetch(`https://unia-cronometer.onrender.com/api/upload`, {
         method: 'POST',
         body: formData
       });
@@ -276,7 +276,7 @@ export default function ActiveSession({ session: initialSession, onSessionFinish
       }
       
       // Enviar para a API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/strava/finish/${session._id}`, {
+      const response = await fetch(`https://unia-cronometer.onrender.com/api/strava/finish/${session._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'

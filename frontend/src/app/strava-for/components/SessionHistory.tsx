@@ -37,7 +37,7 @@ export default function SessionHistory({ userId, onBackToStart }: SessionHistory
     }
     
     // Se a URL for relativa, adiciona o host da API
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+    const apiUrl = 'https://unia-cronometer.onrender.com';
     
     // Se a URL começar com /uploads, adiciona apenas o host
     if (url.startsWith('/uploads/')) {
@@ -74,7 +74,8 @@ export default function SessionHistory({ userId, onBackToStart }: SessionHistory
     const fetchSessions = async () => {
       try {
         console.log('[DEBUG] Buscando sessões para o usuário:', userId);
-        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/strava/${userId}`;
+        // Usar diretamente a URL do microserviço no Render.com
+        const apiUrl = `https://unia-cronometer.onrender.com/api/strava/${userId}`;
         console.log('[DEBUG] URL da API:', apiUrl);
         
         const response = await fetch(apiUrl);

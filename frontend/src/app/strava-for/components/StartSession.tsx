@@ -58,7 +58,8 @@ export default function StartSession({ userId, onSessionStarted }: StartSessionP
       formData.append('image', file);
       console.log('FormData criado com o arquivo:', file.name);
       
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/upload`;
+      // Usar diretamente a URL do microserviço no Render.com
+      const apiUrl = `https://unia-cronometer.onrender.com/api/upload`;
       console.log('Enviando requisição para:', apiUrl);
       
       // Enviar para a API
@@ -144,7 +145,7 @@ export default function StartSession({ userId, onSessionStarted }: StartSessionP
         return;
       }
       
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api/strava/start`;
+      const apiUrl = `https://unia-cronometer.onrender.com/api/strava/start`;
       console.log('Enviando requisição para:', apiUrl);
       
       // Enviar para a API
