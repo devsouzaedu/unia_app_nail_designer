@@ -74,7 +74,68 @@ export default function SessionHistory({ userId, onBackToStart }: SessionHistory
     const fetchSessions = async () => {
       try {
         console.log('[DEBUG] Buscando sessões para o usuário:', userId);
-        // Usar diretamente a URL do microserviço no Render.com
+        
+        // Verificar se estamos no modo de demonstração (URL contém demo=true)
+        const isDemoMode = window.location.href.includes('demo=true');
+        console.log('[DEBUG] Modo de demonstração:', isDemoMode);
+        
+        if (isDemoMode) {
+          // No modo de demonstração, usar dados simulados
+          console.log('[DEBUG] Usando dados simulados para o modo de demonstração');
+          
+          // Criar algumas sessões simuladas
+          const mockSessions = [
+            {
+              _id: 'demo1',
+              clientName: 'Ana Silva',
+              value: 120.00,
+              startTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 dias atrás
+              endTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
+              duration: 7200, // 2 horas
+              beforePhoto: '/gallery/img (1).png',
+              afterPhoto: '/gallery/img (2).png',
+              progressPhotos: ['/gallery/img (3).png'],
+              notes: 'Cliente satisfeita com o resultado. Usamos técnica de nail art com flores.',
+              userId: userId,
+              completed: true
+            },
+            {
+              _id: 'demo2',
+              clientName: 'Mariana Oliveira',
+              value: 150.00,
+              startTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 dias atrás
+              endTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 2.5 * 60 * 60 * 1000).toISOString(),
+              duration: 9000, // 2.5 horas
+              beforePhoto: '/gallery/img (4).png',
+              afterPhoto: '/gallery/img (5).png',
+              progressPhotos: ['/gallery/img (6).png', '/gallery/img (7).png'],
+              notes: 'Aplicação de unhas em gel com decoração de pedras.',
+              userId: userId,
+              completed: true
+            },
+            {
+              _id: 'demo3',
+              clientName: 'Juliana Santos',
+              value: 180.00,
+              startTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 dia atrás
+              endTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000).toISOString(),
+              duration: 10800, // 3 horas
+              beforePhoto: '/gallery/img (8).png',
+              afterPhoto: '/gallery/img (1).png',
+              progressPhotos: [],
+              notes: 'Alongamento de unhas com técnica de fibra de vidro.',
+              userId: userId,
+              completed: true
+            }
+          ];
+          
+          console.log('[DEBUG] Sessões simuladas:', mockSessions);
+          setSessions(mockSessions);
+          setIsLoading(false);
+          return;
+        }
+        
+        // Se não estiver no modo de demonstração, fazer a requisição real
         const apiUrl = `https://unia-cronometer.onrender.com/api/strava/${userId}`;
         console.log('[DEBUG] URL da API:', apiUrl);
         
