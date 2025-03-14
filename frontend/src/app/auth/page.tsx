@@ -3,10 +3,34 @@
 
 import { useSession, signIn } from "next-auth/react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function AuthPage() {
+// Componente de carregamento para o Suspense
+function Loading() {
+  return (
+    <div className="loading-container">
+      <div className="loading">Carregando...</div>
+      <style jsx>{`
+        .loading-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 50vh;
+        }
+        .loading {
+          padding: 2rem;
+          background-color: #f9f9f9;
+          border-radius: 8px;
+          text-align: center;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// Componente principal que usa useSearchParams
+function AuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || '/ferramentas';
@@ -215,5 +239,14 @@ export default function AuthPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+// Componente principal da página envolvido em Suspense
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <AuthContent />
+    </Suspense>
   );
 }

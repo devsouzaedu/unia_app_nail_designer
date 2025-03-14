@@ -1,7 +1,7 @@
 // src/app/calculator/page.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppointmentForm from './components/AppointmentForm';
@@ -10,7 +10,17 @@ import EarningsStats from './components/EarningsStats';
 // Removendo temporariamente a importação do MonthlyCalendar
 // import MonthlyCalendar from './components/MonthlyCalendar';
 
-export default function CalculatorPage() {
+// Componente de carregamento para o Suspense
+function Loading() {
+  return (
+    <div className="loading-container">
+      <div className="loading">Carregando...</div>
+    </div>
+  );
+}
+
+// Componente principal que usa useSearchParams
+function CalculatorContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -247,5 +257,14 @@ export default function CalculatorPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+// Componente principal da página envolvido em Suspense
+export default function CalculatorPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <CalculatorContent />
+    </Suspense>
   );
 }

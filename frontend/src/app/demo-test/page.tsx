@@ -1,10 +1,32 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function DemoTestPage() {
+// Componente de carregamento para o Suspense
+function Loading() {
+  return (
+    <div style={{ 
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '50vh'
+    }}>
+      <div style={{
+        padding: '2rem',
+        backgroundColor: '#f9f9f9',
+        borderRadius: '8px',
+        textAlign: 'center'
+      }}>
+        Carregando...
+      </div>
+    </div>
+  );
+}
+
+// Componente principal que usa useSearchParams
+function DemoTestContent() {
   const searchParams = useSearchParams();
   const demoParam = searchParams.get('demo');
   const isDemo = demoParam === 'true';
@@ -68,6 +90,15 @@ export default function DemoTestPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+// Componente principal da página envolvido em Suspense
+export default function DemoTestPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <DemoTestContent />
+    </Suspense>
   );
 }
 

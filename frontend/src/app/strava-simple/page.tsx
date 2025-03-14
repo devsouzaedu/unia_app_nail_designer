@@ -1,11 +1,35 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function StravaSimplePage() {
+// Componente de carregamento para o Suspense
+function Loading() {
+  return (
+    <div className="loading-container">
+      <div className="loading">Carregando...</div>
+      <style jsx>{`
+        .loading-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 50vh;
+        }
+        .loading {
+          padding: 2rem;
+          background-color: #f9f9f9;
+          border-radius: 8px;
+          text-align: center;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// Componente principal que usa useSearchParams
+function StravaSimpleContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -19,43 +43,42 @@ export default function StravaSimplePage() {
     console.log('Status da sessão:', status);
     console.log('Parâmetro demo:', demoParam);
     console.log('isDemo:', isDemo);
-    
-    // Verificar se o usuário está autenticado ou se está no modo demo
+  }, [status, demoParam, isDemo]);
+  
+  // Verificar autenticação
+  useEffect(() => {
     if (status !== 'loading') {
-      console.log('Status não está carregando. Session:', !!session, 'isDemo:', isDemo);
-      
-      // Se o usuário estiver autenticado ou estiver no modo demo, permitir acesso
       if (session || isDemo) {
-        console.log('Acesso permitido: usuário autenticado ou modo demo');
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 500);
+        setIsLoading(false);
       } else {
-        console.log('Acesso negado: redirecionando para autenticação');
-        // Redirecionar para a página de autenticação se não estiver autenticado e não for demo
-        router.push('/auth?redirectTo=/strava-simple');
+        router.push('/auth');
       }
     }
-  }, [session, status, isDemo, router, demoParam]);
-
-  // Se ainda estiver carregando a sessão, mostrar indicador de carregamento
-  if (status === 'loading') {
+  }, [session, status, isDemo, router]);
+  
+  // Se ainda estiver carregando, mostrar indicador
+  if (status === 'loading' || isLoading) {
     return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.loadingBox}>Verificando autenticação...</div>
+      <div className="loading-container">
+        <div className="loading">Carregando...</div>
+        <style jsx>{`
+          .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 50vh;
+          }
+          .loading {
+            padding: 2rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            text-align: center;
+          }
+        `}</style>
       </div>
     );
   }
-
-  // Se estiver carregando os dados, mostrar indicador de carregamento
-  if (isLoading) {
-    return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.loadingBox}>Carregando dados...</div>
-      </div>
-    );
-  }
-
+  
   return (
     <div style={styles.container}>
       <header style={styles.header}>
@@ -98,6 +121,15 @@ export default function StravaSimplePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Componente principal da página envolvido em Suspense
+export default function StravaSimplePage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <StravaSimpleContent />
+    </Suspense>
   );
 }
 
