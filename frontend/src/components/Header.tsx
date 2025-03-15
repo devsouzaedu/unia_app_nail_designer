@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -17,20 +18,26 @@ export default function Header() {
         <button className="hamburger" onClick={toggleMenu}>
           <span className="hamburger-icon">{menuOpen ? "✖" : "☰"}</span>
         </button>
+        <div className="logo">
+          <Link href="/">
+            <Image 
+              src="/gallery/logo_horizontal_for_navbar.png" 
+              alt="Unia App" 
+              width={120} 
+              height={40} 
+              className="logo-image"
+            />
+          </Link>
+        </div>
         <div className="user-info">
-          {session ? (
-            <>
-              {session.user?.image && (
-                <img
-                  src={session.user.image}
-                  alt="Foto de perfil"
-                  className="profile-image"
-                />
-              )}
-              <p className="user-name">Olá, {session.user?.name}</p>
-            </>
+          {session && session.user?.image ? (
+            <img
+              src={session.user.image}
+              alt="Foto de perfil"
+              className="profile-image"
+            />
           ) : (
-            <p className="user-name">Olá, visitante</p>
+            <div className="profile-placeholder"></div>
           )}
         </div>
       </div>
@@ -60,7 +67,7 @@ export default function Header() {
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
         .header {
-          background-color: #f8f9fa;
+          background-color: #fdf4f9;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           padding: 1rem 2rem;
           font-family: 'Roboto', sans-serif;
@@ -74,8 +81,17 @@ export default function Header() {
           background: transparent;
           border: none;
           font-size: 2rem;
-          color: #343a40;
+          color: #e62e69;
           cursor: pointer;
+          z-index: 10;
+        }
+        .logo {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+        .logo-image {
+          height: auto;
         }
         .user-info {
           display: flex;
@@ -86,12 +102,12 @@ export default function Header() {
           height: 40px;
           border-radius: 50%;
           object-fit: cover;
-          margin-right: 0.5rem;
         }
-        .user-name {
-          font-size: 1rem;
-          color: #343a40;
-          margin: 0;
+        .profile-placeholder {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background-color: #e0e0e0;
         }
         .menu {
           overflow: hidden;
