@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 
 export default function LandingPage() {
   return (
@@ -42,7 +41,7 @@ export default function LandingPage() {
           <p>Logue agora e libere o teste grátis de 10 dias</p>
           <Link href="/auth">
             <button className="google-button">
-              <Image src="/google-icon.png" alt="Google" width={20} height={20} />
+              <img src="/gallery/google-logo.svg" alt="Google" width={20} height={20} style={{ marginRight: '8px' }} />
               Continuar com Google
             </button>
           </Link>
@@ -52,19 +51,19 @@ export default function LandingPage() {
           <h2>Blog</h2>
           <div className="blog-posts">
             <div className="blog-post">
-              <img src="/blog/post1.jpg" alt="Tendências de unhas" />
+              <div className="blog-image" style={{ backgroundImage: 'url(/blog/post1.jpg)' }}></div>
               <h3>Tendências de unhas para 2023</h3>
               <p>Descubra as tendências mais quentes em nail art para este ano.</p>
               <a href="/blog/tendencias-2023">Ler mais</a>
             </div>
             <div className="blog-post">
-              <img src="/blog/post2.jpg" alt="Dicas de cuidados" />
+              <div className="blog-image" style={{ backgroundImage: 'url(/blog/post2.jpg)' }}></div>
               <h3>5 dicas para unhas mais fortes</h3>
               <p>Aprenda como manter suas unhas saudáveis e fortes.</p>
               <a href="/blog/unhas-fortes">Ler mais</a>
             </div>
             <div className="blog-post">
-              <img src="/blog/post3.jpg" alt="Tutorial" />
+              <div className="blog-image" style={{ backgroundImage: 'url(/blog/post3.jpg)' }}></div>
               <h3>Tutorial: Nail art minimalista</h3>
               <p>Aprenda a criar designs elegantes e minimalistas.</p>
               <a href="/blog/nail-art-minimalista">Ler mais</a>
@@ -223,10 +222,12 @@ export default function LandingPage() {
           overflow: hidden;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .blog-post img {
+        .blog-image {
           width: 100%;
           height: 200px;
-          object-fit: cover;
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
         }
         .blog-post h3 {
           padding: 1rem 1rem 0.5rem;

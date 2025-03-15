@@ -20,11 +20,9 @@ export default function Header() {
         </button>
         <div className="logo">
           <Link href="/">
-            <Image 
+            <img 
               src="/gallery/logo_horizontal_for_navbar.png" 
               alt="Unia App" 
-              width={120} 
-              height={40} 
               className="logo-image"
             />
           </Link>
@@ -69,43 +67,49 @@ export default function Header() {
         .header {
           background-color: #fdf4f9;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          padding: 1rem 2rem;
+          padding: 0.4rem 2rem;
           font-family: 'Roboto', sans-serif;
         }
         .header-top {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          height: 40px;
         }
         .hamburger {
           background: transparent;
           border: none;
-          font-size: 2rem;
+          font-size: 1.6rem;
           color: #e62e69;
           cursor: pointer;
           z-index: 10;
+          padding: 0;
+          line-height: 1;
         }
         .logo {
           position: absolute;
           left: 50%;
           transform: translateX(-50%);
+          display: flex;
+          align-items: center;
         }
         .logo-image {
-          height: auto;
+          height: 28px;
+          width: auto;
         }
         .user-info {
           display: flex;
           align-items: center;
         }
         .profile-image {
-          width: 40px;
-          height: 40px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
           object-fit: cover;
         }
         .profile-placeholder {
-          width: 40px;
-          height: 40px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
           background-color: #e0e0e0;
         }
@@ -118,7 +122,7 @@ export default function Header() {
         .menu.open {
           max-height: 300px;
           opacity: 1;
-          margin-top: 1rem;
+          margin-top: 0.3rem;
         }
         .menu ul {
           list-style: none;
@@ -126,13 +130,13 @@ export default function Header() {
           margin: 0;
         }
         .menu li {
-          margin-bottom: 1rem;
+          margin-bottom: 0.5rem;
         }
         .menu li a {
           color: #e62e69;
           text-decoration: none;
           font-weight: 500;
-          font-size: 1.1rem;
+          font-size: 1rem;
         }
       `}</style>
     </header>
