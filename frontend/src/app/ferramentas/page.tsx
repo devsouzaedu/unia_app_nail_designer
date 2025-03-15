@@ -5,25 +5,25 @@ import Link from "next/link";
 
 const tools = [
   {
-    name: "Gen AI Nail Art",
+    name: "Crie unhas com IA",
     description: "Crie e edite unhas com IA generativa.",
     link: "/lab",
     disabled: false,
   },
   {
-    name: "Detect and Teach",
+    name: "Detectar e Aprender",
     description: "Detecta a unha e gera um tutorial.",
     link: "/detect-and-teach",
     disabled: false,
   },
   {
-    name: "Strava for Nail Designers",
+    name: "Cronometro de Serviço",
     description: "Acompanhe seu progresso e compartilhe seus designs.",
     link: "/strava?demo=false",
     disabled: false,
   },
   {
-    name: "Calculator for Nail Designers",
+    name: "Organização financeira",
     description: "Calcule seus ganhos e gerencie agendamentos.",
     link: "/calculator?demo=false",
     disabled: false,
