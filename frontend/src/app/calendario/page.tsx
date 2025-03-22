@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from 'react';
+import Head from 'next/head';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import VisaoSemanal from './components/VisaoSemanal';
@@ -52,6 +53,13 @@ function CalendarioContent() {
         router.push('/auth');
       }
     }
+    
+    // Adicionar classe ao body para impedir zoom
+    document.body.classList.add('no-pinch-zoom');
+    
+    return () => {
+      document.body.classList.remove('no-pinch-zoom');
+    };
   }, [session, status, isDemo, router]);
 
   const handleDataUpdated = () => {
@@ -81,85 +89,98 @@ function CalendarioContent() {
   const userId = session?.user?.email || 'demo-user@example.com';
 
   return (
-    <div className="calendario-container">
-      <header className="page-header">
-        <h1>Calendário de Agendamentos</h1>
-        <p className="subtitle">
-          Visualize e organize seus agendamentos de forma prática e eficiente
-        </p>
-        {isDemo && (
-          <div className="demo-badge">
-            Modo Demonstração
-          </div>
-        )}
-      </header>
-
-      <div className="tabs">
-        <button 
-          className={`tab-button ${activeView === 'dia' ? 'active' : ''}`}
-          onClick={() => setActiveView('dia')}
-        >
-          Visão Diária
-        </button>
-        <button 
-          className={`tab-button ${activeView === 'semana' ? 'active' : ''}`}
-          onClick={() => setActiveView('semana')}
-        >
-          Visão Semanal
-        </button>
-        <button 
-          className={`tab-button ${activeView === 'mes' ? 'active' : ''}`}
-          onClick={() => setActiveView('mes')}
-        >
-          Visão Mensal
-        </button>
-      </div>
-
-      <div className="content-section">
-        {activeView === 'dia' ? (
-          <div className="day-view-container">
-            <VisaoDiaria 
-              userId={userId} 
-              refreshTrigger={refreshTrigger}
-              onAppointmentUpdated={handleDataUpdated}
-            />
-          </div>
-        ) : activeView === 'semana' ? (
-          <div className="week-view-container">
-            <VisaoSemanal 
-              userId={userId} 
-              refreshTrigger={refreshTrigger}
-              onAppointmentUpdated={handleDataUpdated}
-            />
-          </div>
-        ) : (
-          <div className="month-view-container">
-            <VisaoMensal 
-              userId={userId} 
-              refreshTrigger={refreshTrigger}
-              onAppointmentUpdated={handleDataUpdated}
-            />
-          </div>
-        )}
-      </div>
-
-      <div className="new-appointment-container">
-        <NovoAgendamento 
-          userId={userId} 
-          onAppointmentAdded={handleDataUpdated} 
+    <>
+      <Head>
+        <meta 
+          name="viewport" 
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" 
         />
-      </div>
+      </Head>
+      <div className="calendario-container">
+        <header className="page-header">
+          <h1>Calendário de Agendamentos</h1>
+          <p className="subtitle">
+            Visualize e organize seus agendamentos de forma prática e eficiente
+          </p>
+          {isDemo && (
+            <div className="demo-badge">
+              Modo Demonstração
+            </div>
+          )}
+        </header>
 
-      <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        .calendario-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 1rem;
-          font-family: 'Inter', sans-serif;
-        }
-        
+        <div className="tabs">
+          <button 
+            className={`tab-button ${activeView === 'dia' ? 'active' : ''}`}
+            onClick={() => setActiveView('dia')}
+          >
+            Visão Diária
+          </button>
+          <button 
+            className={`tab-button ${activeView === 'semana' ? 'active' : ''}`}
+            onClick={() => setActiveView('semana')}
+          >
+            Visão Semanal
+          </button>
+          <button 
+            className={`tab-button ${activeView === 'mes' ? 'active' : ''}`}
+            onClick={() => setActiveView('mes')}
+          >
+            Visão Mensal
+          </button>
+        </div>
+
+        <div className="content-section">
+          {activeView === 'dia' ? (
+            <div className="day-view-container">
+              <VisaoDiaria 
+                userId={userId} 
+                refreshTrigger={refreshTrigger}
+                onAppointmentUpdated={handleDataUpdated}
+              />
+            </div>
+          ) : activeView === 'semana' ? (
+            <div className="week-view-container">
+              <VisaoSemanal 
+                userId={userId} 
+                refreshTrigger={refreshTrigger}
+                onAppointmentUpdated={handleDataUpdated}
+              />
+            </div>
+          ) : (
+            <div className="month-view-container">
+              <VisaoMensal 
+                userId={userId} 
+                refreshTrigger={refreshTrigger}
+                onAppointmentUpdated={handleDataUpdated}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="new-appointment-container">
+          <NovoAgendamento 
+            userId={userId} 
+            onAppointmentAdded={handleDataUpdated} 
+          />
+        </div>
+
+        <style jsx global>{`
+          .no-pinch-zoom {
+            touch-action: pan-x pan-y;
+          }
+        `}</style>
+
+        <style jsx>{`
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+          
+          .calendario-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            font-family: 'Inter', sans-serif;
+          }
+          
         .page-header {
           text-align: center;
           margin-bottom: 1.5rem;
@@ -300,8 +321,9 @@ function CalendarioContent() {
             font-size: 0.8rem;
           }
         }
-      `}</style>
-    </div>
+        `}</style>
+      </div>
+    </>
   );
 }
 
