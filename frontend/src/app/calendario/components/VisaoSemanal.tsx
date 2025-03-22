@@ -36,10 +36,14 @@ interface VisaoSemanalProps {
 }
 
 export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpdated }: VisaoSemanalProps) {
-  const calendarRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Estados para rolagem horizontal
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  
+  // Estados para dados e UI
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,16 +51,18 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
   const [isRetrying, setIsRetrying] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
+  // Efeito para buscar agendamentos
   useEffect(() => {
     fetchAppointments();
   }, [userId, refreshTrigger, currentWeek]);
 
+  // Função para buscar agendamentos da API
   const fetchAppointments = async () => {
     setIsLoading(true);
     setError('');
     
     try {
-      // Tentar até 3 vezes em caso de falha na conexão
+      // Tenta até 3 vezes em caso de falha na conexão
       let retries = 0;
       const maxRetries = 3;
       let success = false;
@@ -69,7 +75,6 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         } catch (err) {
           retries++;
           if (retries >= maxRetries) throw err;
-          // Esperar um pouco antes de tentar novamente
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
@@ -87,11 +92,13 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
     }
   };
 
+  // Função para tentar novamente
   const handleRetry = () => {
     setIsRetrying(true);
     fetchAppointments();
   };
 
+  // Funções de navegação
   const nextWeek = () => {
     setCurrentWeek(addWeeks(currentWeek, 1));
   };
@@ -100,6 +107,7 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
     setCurrentWeek(subWeeks(currentWeek, 1));
   };
 
+  // Funções para gerenciar agendamentos
   const markAsCompleted = async (id: string) => {
     try {
       await axios.patch(`https://calculator-for-nail-designers.onrender.com/api/appointments/${id}`, {
@@ -159,66 +167,80 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
     });
   };
 
-  // Manipuladores de eventos de mouse para permitir arrastar também via mouse
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!calendarRef.current) return;
-    
-    setIsDragging(true);
-    setStartX(e.pageX - calendarRef.current.offsetLeft);
-    setScrollLeft(calendarRef.current.scrollLeft);
-    calendarRef.current.style.cursor = 'grabbing';
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !calendarRef.current) return;
-    
-    e.preventDefault();
-    const x = e.pageX - calendarRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5; // Multiplicador para rolagem mais rápida
-    calendarRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    if (calendarRef.current) {
-      calendarRef.current.style.cursor = 'grab';
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (isDragging) {
-      setIsDragging(false);
-      if (calendarRef.current) {
-        calendarRef.current.style.cursor = 'grab';
-      }
-    }
-  };
-
-  // Manipuladores de eventos de toque
+  // ====================== FUNÇÕES PARA ROLAGEM HORIZONTAL ======================
+  
+  // Tratamento de eventos de toque (mobile)
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (!calendarRef.current) return;
+    if (!scrollContainerRef.current) return;
     
     setIsDragging(true);
-    setStartX(e.touches[0].pageX - calendarRef.current.offsetLeft);
-    setScrollLeft(calendarRef.current.scrollLeft);
+    setStartX(e.touches[0].pageX);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !calendarRef.current) return;
+    if (!isDragging || !scrollContainerRef.current) return;
     
-    const x = e.touches[0].pageX - calendarRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5; // Multiplicador para rolagem mais rápida
-    calendarRef.current.scrollLeft = scrollLeft - walk;
+    // Evita o comportamento padrão (scroll da página)
+    e.preventDefault();
+    
+    const x = e.touches[0].pageX;
+    const distance = (startX - x) * 1.5; // Aumentar a sensibilidade do scroll
+    scrollContainerRef.current.scrollLeft = scrollLeft + distance;
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
   };
 
+  // Tratamento de eventos de mouse (desktop)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return;
+    
+    setIsDragging(true);
+    setStartX(e.pageX);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+    
+    // Mudar o cursor
+    document.body.style.cursor = 'grabbing';
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    
+    const x = e.pageX;
+    const distance = (startX - x) * 1.5;
+    scrollContainerRef.current.scrollLeft = scrollLeft + distance;
+    
+    // Impedir a seleção de texto durante o arrasto
+    e.preventDefault();
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    document.body.style.cursor = 'default';
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      document.body.style.cursor = 'default';
+    }
+  };
+
+  // Rolagem suave ao clicar nos botões de navegação
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = 0;
+    }
+  }, [currentWeek]);
+
+  // Exibir indicador de carregamento se estiver carregando e sem dados
   if (isLoading && appointments.length === 0) {
     return <div className="loading">Carregando calendário semanal...</div>;
   }
 
+  // Exibir mensagem de erro se falhou e sem dados
   if (error && appointments.length === 0) {
     return (
       <div className="error-container">
@@ -273,57 +295,60 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           </button>
         </div>
       ) : (
-        <div 
-          className={`weekly-calendar ${isDragging ? 'dragging' : ''}`}
-          ref={calendarRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div className="time-column">
-            <div className="day-header"></div>
-            {Array.from({ length: 13 }, (_, i) => i + 8).map((hour) => (
-              <div key={hour} className="time-slot">
-                {hour}:00
+        <div className="calendar-wrapper">
+          <div className="swipe-helper">← Deslize para ver mais →</div>
+          <div 
+            className={`weekly-calendar ${isDragging ? 'grabbing' : ''}`}
+            ref={scrollContainerRef}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div className="time-column">
+              <div className="day-header"></div>
+              {timeSlots.map((hour) => (
+                <div key={hour} className="time-slot">
+                  {hour}:00
+                </div>
+              ))}
+            </div>
+            
+            {daysInWeek.map((day) => (
+              <div key={day.toString()} className="day-column">
+                <div className={`day-header ${isSameDay(day, new Date()) ? 'today' : ''}`}>
+                  <div className="day-name">{format(day, 'EEE', { locale: ptBR })}</div>
+                  <div className="day-number">{format(day, 'd')}</div>
+                </div>
+                
+                {timeSlots.map((hour) => {
+                  const aptsForSlot = getAppointmentsForTimeSlot(day, hour);
+                  
+                  return (
+                    <div key={hour} className="time-slot">
+                      {aptsForSlot.length > 0 ? (
+                        aptsForSlot.map((apt) => (
+                          <div 
+                            key={apt._id}
+                            className={`appointment ${apt.completed ? 'completed' : ''}`}
+                            onClick={() => setSelectedAppointment(apt)}
+                          >
+                            <span className="client-name">{apt.clientName}</span>
+                            <span className="service">{apt.service}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="empty-slot"></div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ))}
           </div>
-          
-          {daysInWeek.map((day) => (
-            <div key={day.toString()} className="day-column">
-              <div className={`day-header ${isSameDay(day, new Date()) ? 'today' : ''}`}>
-                <div className="day-name">{format(day, 'EEE', { locale: ptBR })}</div>
-                <div className="day-number">{format(day, 'd')}</div>
-              </div>
-              
-              {Array.from({ length: 13 }, (_, i) => i + 8).map((hour) => {
-                const aptsForSlot = getAppointmentsForTimeSlot(day, hour);
-                
-                return (
-                  <div key={hour} className="time-slot">
-                    {aptsForSlot.length > 0 ? (
-                      aptsForSlot.map((apt) => (
-                        <div 
-                          key={apt._id}
-                          className={`appointment ${apt.completed ? 'completed' : ''}`}
-                          onClick={() => setSelectedAppointment(apt)}
-                        >
-                          <span className="client-name">{apt.clientName}</span>
-                          <span className="service">{apt.service}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="empty-slot"></div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
         </div>
       )}
 
@@ -501,20 +526,66 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           background-color: #d41e59;
         }
         
+        .calendar-wrapper {
+          position: relative;
+          width: 100%;
+          overflow: hidden;
+        }
+        
+        .swipe-helper {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          background-color: rgba(230, 46, 105, 0.8);
+          color: white;
+          padding: 4px 10px;
+          border-radius: 20px;
+          font-size: 12px;
+          z-index: 10;
+          opacity: 0.8;
+          animation: fade-in-out 2s infinite ease-in-out;
+          pointer-events: none;
+        }
+        
+        @keyframes fade-in-out {
+          0%, 100% { opacity: 0.8; }
+          50% { opacity: 0.3; }
+        }
+        
         .weekly-calendar {
           display: flex;
           border: 1px solid #eee;
           border-radius: 8px;
-          overflow: hidden;
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
-          scrollbar-width: thin;
           scroll-snap-type: x mandatory;
-          touch-action: pan-x;
+          scroll-behavior: smooth;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(230, 46, 105, 0.3) transparent;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
           user-select: none;
           -webkit-user-select: none;
-          -webkit-touch-callout: none;
-          position: relative;
+          -ms-user-select: none;
+          -moz-user-select: none;
+          touch-action: pan-x;
+          cursor: grab;
+        }
+        
+        .weekly-calendar.grabbing {
+          cursor: grabbing;
+        }
+        
+        .weekly-calendar::-webkit-scrollbar {
+          height: 6px;
+        }
+        
+        .weekly-calendar::-webkit-scrollbar-thumb {
+          background-color: rgba(230, 46, 105, 0.3);
+          border-radius: 10px;
+        }
+        
+        .weekly-calendar::-webkit-scrollbar-track {
+          background: transparent;
         }
         
         .time-column, .day-column {
@@ -526,6 +597,14 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         .time-column {
           min-width: 60px;
           background-color: #f9f9f9;
+          position: sticky;
+          left: 0;
+          z-index: 5;
+          box-shadow: 2px 0 5px rgba(0, 0, 0, 0.08);
+        }
+        
+        .day-column {
+          scroll-snap-align: start;
         }
         
         .day-column:last-child {
@@ -541,6 +620,9 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           flex-direction: column;
           justify-content: center;
           background-color: #f9f9f9;
+          position: sticky;
+          top: 0;
+          z-index: 2;
         }
         
         .day-header.today {
@@ -626,10 +708,17 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           right: 0;
           bottom: 0;
           background-color: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(2px);
           display: flex;
           justify-content: center;
           align-items: center;
           z-index: 1000;
+          animation: fade-in 0.2s ease-out;
+        }
+        
+        @keyframes fade-in {
+          0% { opacity: 0; }
+          100% { opacity: 1; }
         }
         
         .modal-content {
@@ -641,6 +730,13 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           position: relative;
           max-height: 90vh;
           overflow-y: auto;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+          animation: slide-up 0.3s ease-out;
+        }
+        
+        @keyframes slide-up {
+          0% { transform: translateY(30px); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
         }
         
         .close-button {
@@ -730,61 +826,15 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           background-color: #e53935;
         }
         
+        /* Estilos específicos para mobile */
         @media (max-width: 768px) {
           .weekly-calendar {
-            min-width: 700px;
-            scroll-padding: 8px;
-            -ms-overflow-style: none;
-            cursor: grab;
-          }
-          
-          /* Indicator that content is scrollable */
-          .weekly-calendar::after {
-            content: "<<  arrastar  >>";
-            position: absolute;
-            bottom: 5px;
-            right: 10px;
-            background: rgba(230, 46, 105, 0.8);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            opacity: 0.8;
-            pointer-events: none;
-            z-index: 5;
-            animation: pulse 2s infinite;
-          }
-          
-          @keyframes pulse {
-            0% { opacity: 0.8; }
-            50% { opacity: 0.4; }
-            100% { opacity: 0.8; }
-          }
-          
-          .weekly-calendar.dragging {
-            cursor: grabbing;
-          }
-          
-          .weekly-calendar::-webkit-scrollbar {
-            height: 4px;
-          }
-          
-          .weekly-calendar::-webkit-scrollbar-thumb {
-            background-color: rgba(230, 46, 105, 0.3);
-            border-radius: 4px;
+            min-width: auto;
+            width: 100%;
           }
           
           .day-column {
             min-width: 90px !important;
-            scroll-snap-align: start;
-          }
-          
-          .time-column {
-            position: sticky;
-            left: 0;
-            z-index: 2;
-            background-color: #f9f9f9;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
           }
           
           .header {
@@ -795,24 +845,18 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           .date-nav {
             width: 100%;
             justify-content: space-between;
+            margin-bottom: 0.75rem;
           }
           
           .actions {
             width: 100%;
             justify-content: flex-end;
-            margin-top: 0.5rem;
-          }
-          
-          .time-column, .day-column {
-            min-width: 80px;
-          }
-          
-          .time-column {
-            min-width: 50px;
+            margin-top: 0.25rem;
           }
           
           .day-header {
             height: 50px;
+            padding: 0.25rem;
           }
           
           .time-slot {
@@ -831,6 +875,11 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           .label {
             width: 100%;
             margin-bottom: 0.25rem;
+          }
+          
+          .swipe-helper {
+            font-size: 10px;
+            padding: 3px 8px;
           }
         }
       `}</style>
