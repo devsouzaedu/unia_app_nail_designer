@@ -66,17 +66,34 @@ export default function VisaoDiaria({ userId, refreshTrigger, onAppointmentUpdat
       const start = startOfDay(selectedDate);
       const end = endOfDay(selectedDate);
       
-      // Fazer a requisição para a API
-      const response = await axios.get('/api/appointments', {
-        params: {
-          userId,
-          startDate: format(start, 'yyyy-MM-dd'),
-          endDate: format(end, 'yyyy-MM-dd')
-        }
-      });
+      // Tentar até 3 vezes em caso de falha na conexão
+      let retries = 0;
+      const maxRetries = 3;
+      let success = false;
+      let response;
       
-      // Se a requisição for bem-sucedida, atualizar o estado dos agendamentos
-      setAppointments(response.data || []);
+      while (retries < maxRetries && !success) {
+        try {
+          // Usando a URL completa assim como nas outras visualizações
+          response = await axios.get(`https://calculator-for-nail-designers.onrender.com/api/appointments/${userId}`);
+          success = true;
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) throw err;
+          // Esperar um pouco antes de tentar novamente
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+      
+      if (response && response.data) {
+        // Filtrar apenas agendamentos do dia selecionado
+        const dayAppointments = response.data.filter((appointment: Appointment) => {
+          const appointmentDate = new Date(appointment.date);
+          return isSameDay(appointmentDate, selectedDate);
+        });
+        
+        setAppointments(dayAppointments);
+      }
       setIsLoading(false);
     } catch (err) {
       console.error('Erro ao buscar agendamentos:', err);
@@ -104,7 +121,7 @@ export default function VisaoDiaria({ userId, refreshTrigger, onAppointmentUpdat
 
   const markAsCompleted = async (id: string) => {
     try {
-      await axios.patch(`/api/appointments/${id}`, {
+      await axios.patch(`https://calculator-for-nail-designers.onrender.com/api/appointments/${id}`, {
         completed: true
       });
       
@@ -129,7 +146,7 @@ export default function VisaoDiaria({ userId, refreshTrigger, onAppointmentUpdat
   const deleteAppointment = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este agendamento?')) {
       try {
-        await axios.delete(`/api/appointments/${id}`);
+        await axios.delete(`https://calculator-for-nail-designers.onrender.com/api/appointments/${id}`);
         
         // Atualizar o estado local
         setAppointments(prev => prev.filter(apt => apt._id !== id));
