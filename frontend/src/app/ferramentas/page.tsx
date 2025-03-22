@@ -28,6 +28,12 @@ const tools = [
     link: "/calculator?demo=false",
     disabled: false,
   },
+  {
+    name: "Calendário de Agendamentos",
+    description: "Organize seus agendamentos de manicure com visualização semanal e mensal.",
+    link: "/calendario",
+    disabled: false,
+  },
 ];
 
 export default function FerramentasPage() {
