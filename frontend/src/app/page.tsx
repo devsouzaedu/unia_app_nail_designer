@@ -8,18 +8,16 @@ export default function LandingPage() {
       <main>
         <section className="intro">
           <h2 className="title">
-            Unhas de Pinterest, em minutos{" "}
+            O Queridinho das Nails-designers{" "}
             <span role="img" aria-label="nail">
               💅
             </span>
           </h2>
           <p className="tagline">
-            Obtenha designs de unhas deslumbrantes com nosso gerador de arte de
-            unhas com IA. Descreva sua ideia, escolha seus estilos e receba designs
-            únicos.
+            O canivete suiço para manicures, nail-designers e profissionais da unha.
           </p>
           <Link href="/auth">
-            <button className="cta-button">Crie sua unha com AI</button>
+            <button className="cta-button">Acesse as ferramentas 🛠️</button>
           </Link>
           <p className="users-count">Se junte a 400+ Nail designers</p>
         </section>
