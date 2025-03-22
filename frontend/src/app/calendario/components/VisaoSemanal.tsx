@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   format, 
   startOfWeek, 
@@ -36,6 +36,10 @@ interface VisaoSemanalProps {
 }
 
 export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpdated }: VisaoSemanalProps) {
+  const calendarRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -155,6 +159,62 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
     });
   };
 
+  // Manipuladores de eventos de mouse para permitir arrastar também via mouse
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!calendarRef.current) return;
+    
+    setIsDragging(true);
+    setStartX(e.pageX - calendarRef.current.offsetLeft);
+    setScrollLeft(calendarRef.current.scrollLeft);
+    calendarRef.current.style.cursor = 'grabbing';
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !calendarRef.current) return;
+    
+    e.preventDefault();
+    const x = e.pageX - calendarRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; // Multiplicador para rolagem mais rápida
+    calendarRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    if (calendarRef.current) {
+      calendarRef.current.style.cursor = 'grab';
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      if (calendarRef.current) {
+        calendarRef.current.style.cursor = 'grab';
+      }
+    }
+  };
+
+  // Manipuladores de eventos de toque
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!calendarRef.current) return;
+    
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - calendarRef.current.offsetLeft);
+    setScrollLeft(calendarRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !calendarRef.current) return;
+    
+    const x = e.touches[0].pageX - calendarRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; // Multiplicador para rolagem mais rápida
+    calendarRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
   if (isLoading && appointments.length === 0) {
     return <div className="loading">Carregando calendário semanal...</div>;
   }
@@ -213,7 +273,17 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           </button>
         </div>
       ) : (
-        <div className="weekly-calendar">
+        <div 
+          className={`weekly-calendar ${isDragging ? 'dragging' : ''}`}
+          ref={calendarRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <div className="time-column">
             <div className="day-header"></div>
             {Array.from({ length: 13 }, (_, i) => i + 8).map((hour) => (
@@ -442,6 +512,9 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           scroll-snap-type: x mandatory;
           touch-action: pan-x;
           user-select: none;
+          -webkit-user-select: none;
+          -webkit-touch-callout: none;
+          position: relative;
         }
         
         .time-column, .day-column {
@@ -665,7 +738,30 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
             cursor: grab;
           }
           
-          .weekly-calendar:active {
+          /* Indicator that content is scrollable */
+          .weekly-calendar::after {
+            content: "<<  arrastar  >>";
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            background: rgba(230, 46, 105, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 5;
+            animation: pulse 2s infinite;
+          }
+          
+          @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 0.4; }
+            100% { opacity: 0.8; }
+          }
+          
+          .weekly-calendar.dragging {
             cursor: grabbing;
           }
           

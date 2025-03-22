@@ -117,6 +117,7 @@ function CalculatorContent() {
           />
           
           <div className="export-section">
+            <h3 className="section-title">Exportar Dados</h3>
             <ExportReport userId={userId} />
           </div>
         </div>
@@ -263,6 +264,31 @@ function CalculatorContent() {
         
         .export-section {
           margin-top: 2rem;
+          padding: 1.5rem;
+          background: rgba(255, 255, 255, 0.8);
+          border-radius: 12px;
+          backdrop-filter: blur(10px);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .section-title {
+          color: #333;
+          font-size: 1.2rem;
+          margin-bottom: 1rem;
+          position: relative;
+          padding-bottom: 0.5rem;
+        }
+        
+        .section-title::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 50px;
+          height: 3px;
+          background: linear-gradient(90deg, #4caf50, transparent);
+          border-radius: 3px;
         }
       `}</style>
     </div>
