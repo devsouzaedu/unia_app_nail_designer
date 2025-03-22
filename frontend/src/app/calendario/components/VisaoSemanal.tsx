@@ -172,104 +172,149 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
   }
 
   return (
-    <div className="weekly-calendar">
-      <div className="calendar-header">
-        <h2>Visão Semanal</h2>
-        <div className="week-navigation">
-          <button onClick={prevWeek} className="nav-button">
+    <div className="visao-semanal-container">
+      <div className="header">
+        <div className="date-nav">
+          <button className="nav-button" onClick={prevWeek} aria-label="Semana anterior">
             <FaChevronLeft />
           </button>
-          <h3>
-            {format(weekStart, "dd 'de' MMMM", { locale: ptBR })} - {format(weekEnd, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-          </h3>
-          <button onClick={nextWeek} className="nav-button">
+          
+          <div className="current-week">
+            <span className="week-display">
+              {format(weekStart, "d 'de' MMMM", { locale: ptBR })} - {format(weekEnd, "d 'de' MMMM", { locale: ptBR })}
+            </span>
+          </div>
+          
+          <button className="nav-button" onClick={nextWeek} aria-label="Próxima semana">
             <FaChevronRight />
           </button>
         </div>
+        
+        <div className="actions">
+          <button 
+            className="refresh-button" 
+            onClick={handleRetry} 
+            disabled={isRetrying}
+          >
+            <FaSync className={isRetrying ? 'spinning' : ''} />
+          </button>
+        </div>
       </div>
-      
-      <div className="week-calendar-grid">
-        {/* Cabeçalho com os dias da semana */}
-        <div className="time-column">
-          <div className="time-header">Hora</div>
-          {timeSlots.map(hour => (
-            <div key={hour} className="time-slot">
-              {`${hour}:00`}
+
+      {isLoading ? (
+        <div className="loading-container">
+          <p>Carregando agendamentos...</p>
+        </div>
+      ) : error ? (
+        <div className="error-container">
+          <p>{error}</p>
+          <button className="retry-button" onClick={handleRetry} disabled={isRetrying}>
+            {isRetrying ? 'Tentando novamente...' : 'Tentar novamente'}
+          </button>
+        </div>
+      ) : (
+        <div className="weekly-calendar">
+          <div className="time-column">
+            <div className="day-header"></div>
+            {Array.from({ length: 13 }, (_, i) => i + 8).map((hour) => (
+              <div key={hour} className="time-slot">
+                {hour}:00
+              </div>
+            ))}
+          </div>
+          
+          {daysInWeek.map((day) => (
+            <div key={day.toString()} className="day-column">
+              <div className={`day-header ${isSameDay(day, new Date()) ? 'today' : ''}`}>
+                <div className="day-name">{format(day, 'EEE', { locale: ptBR })}</div>
+                <div className="day-number">{format(day, 'd')}</div>
+              </div>
+              
+              {Array.from({ length: 13 }, (_, i) => i + 8).map((hour) => {
+                const aptsForSlot = getAppointmentsForTimeSlot(day, hour);
+                
+                return (
+                  <div key={hour} className="time-slot">
+                    {aptsForSlot.length > 0 ? (
+                      aptsForSlot.map((apt) => (
+                        <div 
+                          key={apt._id}
+                          className={`appointment ${apt.completed ? 'completed' : ''}`}
+                          onClick={() => setSelectedAppointment(apt)}
+                        >
+                          <span className="client-name">{apt.clientName}</span>
+                          <span className="service">{apt.service}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="empty-slot"></div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>
-        
-        {/* Colunas dos dias da semana */}
-        {daysInWeek.map(day => (
-          <div key={day.toString()} className="day-column">
-            <div className="day-header">
-              <div className="day-name">{format(day, 'EEE', { locale: ptBR })}</div>
-              <div className="day-number">{format(day, 'dd')}</div>
-            </div>
-            
-            {/* Time slots para cada dia */}
-            {timeSlots.map(hour => {
-              const appointmentsAtSlot = getAppointmentsForTimeSlot(day, hour);
-              const hasAppointments = appointmentsAtSlot.length > 0;
-              
-              return (
-                <div key={`${day}-${hour}`} className={`day-time-slot ${hasAppointments ? 'has-appointments' : ''}`}>
-                  {hasAppointments && appointmentsAtSlot.map(appointment => (
-                    <div 
-                      key={appointment._id}
-                      className={`appointment-card ${appointment.completed ? 'completed' : ''}`}
-                      onClick={() => setSelectedAppointment(appointment)}
-                    >
-                      <div className="appointment-time">{appointment.time}</div>
-                      <div className="appointment-client">{appointment.clientName}</div>
-                      <div className="appointment-service">{appointment.service}</div>
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-      
-      {/* Modal de detalhes do agendamento */}
+      )}
+
       {selectedAppointment && (
-        <div className="appointment-modal-backdrop" onClick={() => setSelectedAppointment(null)}>
-          <div className="appointment-modal" onClick={e => e.stopPropagation()}>
-            <h3>{selectedAppointment.clientName}</h3>
-            <div className="appointment-details">
-              <p><strong>Serviço:</strong> {selectedAppointment.service}</p>
-              <p><strong>Valor:</strong> R$ {selectedAppointment.value.toFixed(2)}</p>
-              <p><strong>Data:</strong> {format(new Date(selectedAppointment.date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</p>
-              <p><strong>Horário:</strong> {selectedAppointment.time}</p>
+        <div className="appointment-detail-modal">
+          <div className="modal-content">
+            <button className="close-button" onClick={() => setSelectedAppointment(null)}>×</button>
+            <h3>Detalhes do Agendamento</h3>
+            
+            <div className="detail-content">
+              <div className="detail-row">
+                <span className="label">Cliente:</span>
+                <span className="value">{selectedAppointment.clientName}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Serviço:</span>
+                <span className="value">{selectedAppointment.service}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Valor:</span>
+                <span className="value">R$ {selectedAppointment.value.toFixed(2)}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Data:</span>
+                <span className="value">
+                  {format(parseISO(selectedAppointment.date), "dd/MM/yyyy")}
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Hora:</span>
+                <span className="value">{selectedAppointment.time}</span>
+              </div>
               {selectedAppointment.notes && (
-                <p><strong>Observações:</strong> {selectedAppointment.notes}</p>
+                <div className="detail-row">
+                  <span className="label">Observações:</span>
+                  <span className="value notes">{selectedAppointment.notes}</span>
+                </div>
               )}
-              <p className="status">
-                <strong>Status:</strong> {selectedAppointment.completed ? 'Concluído' : 'Pendente'}
-              </p>
+              <div className="detail-row">
+                <span className="label">Status:</span>
+                <span className={`value status ${selectedAppointment.completed ? 'completed' : 'pending'}`}>
+                  {selectedAppointment.completed ? 'Concluído' : 'Pendente'}
+                </span>
+              </div>
             </div>
             
             <div className="modal-actions">
               {!selectedAppointment.completed && (
                 <button 
-                  className="action-button complete"
+                  className="complete-button"
                   onClick={() => markAsCompleted(selectedAppointment._id)}
                 >
-                  <FaCheck /> Concluído
+                  <FaCheck /> Marcar como Concluído
                 </button>
               )}
+              
               <button 
-                className="action-button delete"
+                className="delete-button"
                 onClick={() => deleteAppointment(selectedAppointment._id)}
               >
-                <FaTrash /> Excluir
-              </button>
-              <button 
-                className="action-button close"
-                onClick={() => setSelectedAppointment(null)}
-              >
-                Fechar
+                <FaTrash /> Excluir Agendamento
               </button>
             </div>
           </div>
@@ -277,210 +322,227 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
       )}
 
       <style jsx>{`
-        .weekly-calendar {
-          background-color: #fff;
-          border-radius: 8px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          padding: 1.5rem;
+        .visao-semanal-container {
+          font-family: 'Inter', sans-serif;
+          margin-bottom: 1.5rem;
         }
-
-        .calendar-header {
+        
+        .header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
+          flex-wrap: wrap;
         }
-
-        h2 {
-          color: #e62e69;
-          margin: 0;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .week-navigation {
+        
+        .date-nav {
           display: flex;
           align-items: center;
-          gap: 1rem;
+          margin-bottom: 0.5rem;
         }
-
+        
         .nav-button {
           background: none;
-          border: 1px solid #e1e1e1;
-          border-radius: 50%;
-          width: 36px;
-          height: 36px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          border: none;
+          font-size: 1.2rem;
           cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .nav-button:hover {
-          background-color: #f7f7f7;
-          border-color: #ccc;
-        }
-
-        h3 {
-          margin: 0;
-          font-weight: 500;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .week-calendar-grid {
-          display: grid;
-          grid-template-columns: 80px repeat(7, 1fr);
-          border: 1px solid #e1e1e1;
-          border-radius: 4px;
-          overflow: hidden;
-        }
-
-        .time-column {
-          background-color: #f9f9f9;
-          border-right: 1px solid #e1e1e1;
-        }
-
-        .time-header, .day-header {
-          padding: 1rem 0.5rem;
-          text-align: center;
-          font-weight: 500;
-          background-color: #f9f9f9;
-          border-bottom: 1px solid #e1e1e1;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .time-slot {
-          height: 80px;
+          color: #e62e69;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-bottom: 1px solid #e1e1e1;
-          font-size: 0.9rem;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          transition: background-color 0.3s;
+        }
+        
+        .nav-button:hover {
+          background-color: rgba(230, 46, 105, 0.1);
+        }
+        
+        .current-week {
+          margin: 0 1rem;
+          text-align: center;
+        }
+        
+        .week-display {
+          font-size: 1rem;
           color: #666;
-          font-family: 'Inter', sans-serif;
         }
-
-        .day-column {
-          border-right: 1px solid #e1e1e1;
+        
+        .actions {
+          display: flex;
+          gap: 0.5rem;
         }
-
+        
+        .refresh-button {
+          background-color: #f4f4f4;
+          color: #666;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          padding: 0;
+          border-radius: 50%;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+        
+        .refresh-button:hover {
+          background-color: #e6e6e6;
+        }
+        
+        .spinning {
+          animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+        
+        .loading-container, .error-container {
+          padding: 2rem;
+          text-align: center;
+          background-color: #f9f9f9;
+          border-radius: 8px;
+          margin-top: 1rem;
+        }
+        
+        .error-container {
+          color: #e62e69;
+        }
+        
+        .retry-button {
+          margin-top: 1rem;
+          padding: 0.5rem 1rem;
+          border: none;
+          border-radius: 4px;
+          background-color: #e62e69;
+          color: white;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+        
+        .retry-button:hover {
+          background-color: #d41e59;
+        }
+        
+        .weekly-calendar {
+          display: flex;
+          border: 1px solid #eee;
+          border-radius: 8px;
+          overflow: hidden;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        
+        .time-column, .day-column {
+          flex: 1;
+          min-width: 100px;
+          border-right: 1px solid #eee;
+        }
+        
+        .time-column {
+          min-width: 60px;
+          background-color: #f9f9f9;
+        }
+        
         .day-column:last-child {
           border-right: none;
         }
-
-        .day-name {
-          text-transform: capitalize;
-          font-family: 'Inter', sans-serif;
+        
+        .day-header {
+          height: 60px;
+          padding: 0.5rem;
+          text-align: center;
+          border-bottom: 1px solid #eee;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          background-color: #f9f9f9;
         }
-
+        
+        .day-header.today {
+          background-color: rgba(230, 46, 105, 0.1);
+        }
+        
+        .day-name {
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          color: #666;
+          margin-bottom: 0.25rem;
+        }
+        
         .day-number {
           font-size: 1.2rem;
-          font-weight: 600;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .day-time-slot {
-          height: 80px;
-          border-bottom: 1px solid #e1e1e1;
-          padding: 0.25rem;
-          overflow: auto;
-        }
-
-        .day-time-slot.has-appointments {
-          background-color: #fef8fa;
-        }
-
-        .appointment-card {
-          background-color: #fff8fa;
-          border-left: 3px solid #e62e69;
-          padding: 0.5rem;
-          margin-bottom: 0.25rem;
-          border-radius: 4px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-          cursor: pointer;
-          transition: all 0.2s;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .appointment-card:hover {
-          background-color: #ffedf2;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .appointment-card.completed {
-          border-left-color: #4caf50;
-          background-color: #f1f8e9;
-        }
-
-        .appointment-time {
-          font-size: 0.8rem;
-          color: #666;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .appointment-client {
-          font-weight: 600;
-          font-size: 0.9rem;
-          margin: 0.2rem 0;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .appointment-service {
-          font-size: 0.8rem;
+          font-weight: 500;
           color: #333;
-          font-family: 'Inter', sans-serif;
         }
-
-        .loading {
-          padding: 2rem;
-          text-align: center;
-          font-family: 'Inter', sans-serif;
+        
+        .time-slot {
+          height: 60px;
+          border-bottom: 1px solid #eee;
+          padding: 0.25rem;
+          overflow: hidden;
         }
-
-        .error-container {
-          padding: 1.5rem;
-          text-align: center;
-        }
-
-        .error-message {
-          background-color: #ffebee;
-          color: #c62828;
-          padding: 1rem;
-          border-radius: 4px;
-          margin-bottom: 1rem;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .retry-button {
-          background-color: #e62e69;
-          color: white;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 4px;
-          cursor: pointer;
+        
+        .time-column .time-slot {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          margin: 0 auto;
-          font-family: 'Inter', sans-serif;
+          justify-content: center;
+          color: #666;
+          font-size: 0.8rem;
         }
-
-        .retry-button:disabled {
-          background-color: #f5a5c0;
-          cursor: not-allowed;
+        
+        .appointment {
+          background-color: #e62e69;
+          color: white;
+          border-radius: 4px;
+          padding: 0.25rem 0.5rem;
+          font-size: 0.8rem;
+          cursor: pointer;
+          margin-bottom: 0.25rem;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          height: calc(100% - 0.5rem);
         }
-
-        .retry-icon {
-          animation: ${isRetrying ? 'spin 1s linear infinite' : 'none'};
+        
+        .appointment.completed {
+          background-color: #4caf50;
         }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        
+        .appointment:hover {
+          opacity: 0.9;
         }
-
-        /* Modal Styles */
-        .appointment-modal-backdrop {
+        
+        .client-name {
+          display: block;
+          font-weight: 500;
+          margin-bottom: 0.1rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        
+        .service {
+          font-size: 0.7rem;
+          opacity: 0.9;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        
+        .empty-slot {
+          height: 100%;
+          width: 100%;
+        }
+        
+        .appointment-detail-modal {
           position: fixed;
           top: 0;
           left: 0;
@@ -492,71 +554,155 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           align-items: center;
           z-index: 1000;
         }
-
-        .appointment-modal {
+        
+        .modal-content {
           background-color: white;
-          border-radius: 8px;
-          padding: 2rem;
-          width: 100%;
+          width: 90%;
           max-width: 500px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-          font-family: 'Inter', sans-serif;
+          border-radius: 8px;
+          padding: 1.5rem;
+          position: relative;
+          max-height: 90vh;
+          overflow-y: auto;
         }
-
-        .appointment-modal h3 {
-          color: #e62e69;
-          margin-top: 0;
-          margin-bottom: 1.5rem;
-          font-family: 'Inter', sans-serif;
+        
+        .close-button {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+          color: #666;
         }
-
-        .appointment-details {
-          margin-bottom: 2rem;
+        
+        .detail-content {
+          margin: 1.5rem 0;
         }
-
-        .appointment-details p {
-          margin: 0.5rem 0;
-          font-family: 'Inter', sans-serif;
+        
+        .detail-row {
+          display: flex;
+          margin-bottom: 1rem;
         }
-
-        .status {
-          padding: 0.5rem;
-          border-radius: 4px;
-          background-color: ${selectedAppointment?.completed ? '#e8f5e9' : '#fff8fa'};
-          color: ${selectedAppointment?.completed ? '#2e7d32' : '#c2185b'};
+        
+        .label {
+          font-weight: 500;
+          color: #666;
+          width: 120px;
+          flex-shrink: 0;
         }
-
+        
+        .value {
+          flex: 1;
+          color: #333;
+        }
+        
+        .value.notes {
+          white-space: pre-wrap;
+        }
+        
+        .value.status {
+          font-weight: 500;
+        }
+        
+        .value.status.completed {
+          color: #4caf50;
+        }
+        
+        .value.status.pending {
+          color: #f9a825;
+        }
+        
         .modal-actions {
           display: flex;
           gap: 1rem;
-          justify-content: flex-end;
+          margin-top: 1.5rem;
+          flex-wrap: wrap;
         }
-
-        .action-button {
-          padding: 0.75rem 1.5rem;
-          border-radius: 4px;
+        
+        .complete-button, .delete-button {
+          padding: 0.75rem 1rem;
           border: none;
+          border-radius: 4px;
           cursor: pointer;
           display: flex;
           align-items: center;
           gap: 0.5rem;
           font-weight: 500;
-          font-family: 'Inter', sans-serif;
+          transition: background-color 0.3s;
+          flex: 1;
+          justify-content: center;
         }
-
-        .action-button.complete {
+        
+        .complete-button {
           background-color: #4caf50;
           color: white;
         }
-
-        .action-button.delete {
+        
+        .complete-button:hover {
+          background-color: #3d9440;
+        }
+        
+        .delete-button {
           background-color: #f44336;
           color: white;
         }
-
-        .action-button.close {
-          background-color: #e0e0e0;
-          color: #333;
+        
+        .delete-button:hover {
+          background-color: #e53935;
+        }
+        
+        @media (max-width: 768px) {
+          .weekly-calendar {
+            min-width: 700px;
+          }
+          
+          .header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          
+          .date-nav {
+            width: 100%;
+            justify-content: space-between;
+          }
+          
+          .actions {
+            width: 100%;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+          }
+          
+          .time-column, .day-column {
+            min-width: 80px;
+          }
+          
+          .time-column {
+            min-width: 50px;
+          }
+          
+          .day-header {
+            height: 50px;
+          }
+          
+          .time-slot {
+            height: 50px;
+          }
+          
+          .modal-content {
+            width: 95%;
+            padding: 1rem;
+          }
+          
+          .detail-row {
+            flex-direction: column;
+          }
+          
+          .label {
+            width: 100%;
+            margin-bottom: 0.25rem;
+          }
         }
       `}</style>
     </div>

@@ -180,14 +180,14 @@ export default function VisaoMensal({ userId, refreshTrigger, onAppointmentUpdat
   }
 
   return (
-    <div className="monthly-calendar">
-      <div className="calendar-header">
+    <div className="visao-mensal">
+      <div className="header">
         <h2>Visão Mensal</h2>
-        <div className="month-navigation">
+        <div className="date-nav">
           <button onClick={prevMonth} className="nav-button">
             <FaChevronLeft />
           </button>
-          <h3>{format(currentMonth, 'MMMM yyyy', { locale: ptBR })}</h3>
+          <h3 className="current-month">{format(currentMonth, 'MMMM yyyy', { locale: ptBR })}</h3>
           <button onClick={nextMonth} className="nav-button">
             <FaChevronRight />
           </button>
@@ -197,14 +197,14 @@ export default function VisaoMensal({ userId, refreshTrigger, onAppointmentUpdat
       <div className="calendar-grid">
         {/* Cabeçalho dos dias da semana */}
         {weekDays.map(day => (
-          <div key={day} className="weekday-header">
+          <div key={day} className="day-header">
             {day}
           </div>
         ))}
         
         {/* Dias do mês */}
         {Array.from({ length: getDay(monthStart) }).map((_, index) => (
-          <div key={`empty-${index}`} className="calendar-day empty"></div>
+          <div key={`empty-${index}`} className="day-cell empty"></div>
         ))}
         
         {daysInMonth.map(day => {
@@ -215,15 +215,15 @@ export default function VisaoMensal({ userId, refreshTrigger, onAppointmentUpdat
           return (
             <div 
               key={day.toString()} 
-              className={`calendar-day ${hasAppointments ? 'has-appointments' : ''} ${!isCurrentMonth ? 'other-month' : ''}`}
+              className={`day-cell ${hasAppointments ? 'has-appointments' : ''} ${!isCurrentMonth ? 'other-month' : ''}`}
               onClick={() => hasAppointments && handleDayClick(day)}
             >
-              <div className="day-header">
+              <div className="day-number">
                 {format(day, 'd')}
               </div>
               
               {hasAppointments && (
-                <div className="day-appointment-count">
+                <div className="appointment-count">
                   <span className="count-badge">{dayAppointments.length}</span>
                   <span className="count-text">
                     {dayAppointments.length === 1 ? 'agendamento' : 'agendamentos'}
@@ -237,55 +237,57 @@ export default function VisaoMensal({ userId, refreshTrigger, onAppointmentUpdat
       
       {/* Exibir detalhes dos agendamentos do dia selecionado */}
       {selectedDate && (
-        <div className="day-details">
-          <div className="day-details-header">
-            <h4>Agendamentos em {format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</h4>
-            <button className="close-button" onClick={closeDayDetails}>×</button>
-          </div>
-          
-          <div className="day-appointments-list">
-            {getAppointmentsForDay(selectedDate).length > 0 ? (
-              getAppointmentsForDay(selectedDate).map(appointment => (
-                <div 
-                  key={appointment._id}
-                  className={`appointment-item ${appointment.completed ? 'completed' : ''}`}
-                  onClick={() => setSelectedAppointment(appointment)}
-                >
-                  <div className="appointment-time">{appointment.time}</div>
-                  <div className="appointment-info">
-                    <div className="appointment-client">{appointment.clientName}</div>
-                    <div className="appointment-service">{appointment.service}</div>
+        <div className="day-detail-modal" onClick={closeDayDetails}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="close-button" onClick={closeDayDetails}>×</div>
+            <h4 className="modal-title">Agendamentos em {format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</h4>
+            
+            <div className="appointments-list">
+              {getAppointmentsForDay(selectedDate).length > 0 ? (
+                getAppointmentsForDay(selectedDate).map(appointment => (
+                  <div 
+                    key={appointment._id}
+                    className={`appointment-item ${appointment.completed ? 'completed' : ''}`}
+                    onClick={() => setSelectedAppointment(appointment)}
+                  >
+                    <div className="appointment-time">{appointment.time}</div>
+                    <div className="appointment-info">
+                      <div className="appointment-client">{appointment.clientName}</div>
+                      <div className="appointment-service">{appointment.service}</div>
+                    </div>
+                    <div className="appointment-value">
+                      R$ {appointment.value.toFixed(2)}
+                    </div>
                   </div>
-                  <div className="appointment-value">
-                    R$ {appointment.value.toFixed(2)}
-                  </div>
+                ))
+              ) : (
+                <div className="no-appointments">
+                  Nenhum agendamento para este dia.
                 </div>
-              ))
-            ) : (
-              <div className="no-appointments">
-                Nenhum agendamento para este dia.
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
       
       {/* Modal de detalhes do agendamento */}
       {selectedAppointment && (
-        <div className="appointment-modal-backdrop" onClick={() => setSelectedAppointment(null)}>
-          <div className="appointment-modal" onClick={e => e.stopPropagation()}>
-            <h3>{selectedAppointment.clientName}</h3>
-            <div className="appointment-details">
-              <p><strong>Serviço:</strong> {selectedAppointment.service}</p>
-              <p><strong>Valor:</strong> R$ {selectedAppointment.value.toFixed(2)}</p>
-              <p><strong>Data:</strong> {format(new Date(selectedAppointment.date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</p>
-              <p><strong>Horário:</strong> {selectedAppointment.time}</p>
-              {selectedAppointment.notes && (
-                <p><strong>Observações:</strong> {selectedAppointment.notes}</p>
-              )}
-              <p className="status">
-                <strong>Status:</strong> {selectedAppointment.completed ? 'Concluído' : 'Pendente'}
-              </p>
+        <div className="day-detail-modal" onClick={() => setSelectedAppointment(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="close-button" onClick={() => setSelectedAppointment(null)}>×</div>
+            <h4 className="modal-title">{selectedAppointment.clientName}</h4>
+            
+            <div className="appointments-list">
+              <div className="appointment-item">
+                <div className="appointment-time">{selectedAppointment.time}</div>
+                <div className="appointment-info">
+                  <div className="appointment-client">{selectedAppointment.clientName}</div>
+                  <div className="appointment-service">{selectedAppointment.service}</div>
+                </div>
+                <div className="appointment-value">
+                  R$ {selectedAppointment.value.toFixed(2)}
+                </div>
+              </div>
             </div>
             
             <div className="modal-actions">
@@ -303,298 +305,154 @@ export default function VisaoMensal({ userId, refreshTrigger, onAppointmentUpdat
               >
                 <FaTrash /> Excluir
               </button>
-              <button 
-                className="action-button close"
-                onClick={() => setSelectedAppointment(null)}
-              >
-                Fechar
-              </button>
             </div>
           </div>
         </div>
       )}
 
       <style jsx>{`
-        .monthly-calendar {
+        .visao-mensal {
           background-color: #fff;
           border-radius: 8px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
           padding: 1.5rem;
         }
 
-        .calendar-header {
+        .header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
+          flex-wrap: wrap;
         }
 
-        h2 {
-          color: #e62e69;
-          margin: 0;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .month-navigation {
+        .date-nav {
           display: flex;
           align-items: center;
-          gap: 1rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .current-month {
+          margin: 0 1rem;
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #333;
+          text-transform: capitalize;
         }
 
         .nav-button {
           background: none;
-          border: 1px solid #e1e1e1;
-          border-radius: 50%;
-          width: 36px;
-          height: 36px;
+          border: none;
+          font-size: 1.2rem;
+          cursor: pointer;
+          color: #e62e69;
           display: flex;
           align-items: center;
           justify-content: center;
-          cursor: pointer;
-          transition: all 0.2s;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          transition: background-color 0.3s;
         }
 
         .nav-button:hover {
-          background-color: #f7f7f7;
-          border-color: #ccc;
-        }
-
-        h3 {
-          margin: 0;
-          font-weight: 500;
-          text-transform: capitalize;
-          font-family: 'Inter', sans-serif;
+          background-color: rgba(230, 46, 105, 0.1);
         }
 
         .calendar-grid {
           display: grid;
           grid-template-columns: repeat(7, 1fr);
-          gap: 1px;
-          background-color: #e1e1e1;
-          border: 1px solid #e1e1e1;
-          border-radius: 4px;
-          overflow: hidden;
-        }
-
-        .weekday-header {
-          background-color: #f9f9f9;
-          padding: 0.75rem 0;
+          gap: 0.5rem;
           text-align: center;
-          font-weight: 500;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .calendar-day {
-          background-color: white;
-          min-height: 100px;
-          padding: 0.5rem;
-          position: relative;
-        }
-
-        .calendar-day.empty {
-          background-color: #f9f9f9;
-        }
-
-        .calendar-day.other-month {
-          background-color: #f9f9f9;
-          color: #999;
-        }
-
-        .calendar-day.has-appointments {
-          background-color: #fff8fa;
-          cursor: pointer;
-        }
-
-        .calendar-day.has-appointments:hover {
-          background-color: #ffedf2;
         }
 
         .day-header {
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .day-appointment-count {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          margin-top: 1.5rem;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .count-badge {
-          background-color: #e62e69;
-          color: white;
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          font-weight: 500;
+          color: #666;
+          padding: 0.5rem;
+          text-transform: uppercase;
           font-size: 0.8rem;
-          font-weight: 600;
-          margin-bottom: 0.25rem;
         }
 
-        .count-text {
-          font-size: 0.7rem;
-          color: #666;
-        }
-
-        .day-details {
-          margin-top: 1.5rem;
-          padding: 1rem;
-          background-color: #fff8fa;
+        .day-cell {
+          min-height: 100px;
+          border: 1px solid #eee;
           border-radius: 8px;
-          border: 1px solid #ffe0e9;
-        }
-
-        .day-details-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1rem;
-        }
-
-        h4 {
-          margin: 0;
-          color: #e62e69;
-          font-weight: 600;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .close-button {
-          background: none;
-          border: none;
-          font-size: 1.5rem;
-          color: #666;
-          cursor: pointer;
-          width: 30px;
-          height: 30px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-        }
-
-        .close-button:hover {
-          background-color: #f7f7f7;
-        }
-
-        .day-appointments-list {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .appointment-item {
-          display: flex;
-          background-color: white;
-          padding: 0.75rem;
-          border-radius: 4px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-          border-left: 3px solid #e62e69;
+          padding: 0.5rem;
+          position: relative;
           cursor: pointer;
           transition: all 0.2s;
-          font-family: 'Inter', sans-serif;
         }
 
-        .appointment-item:hover {
-          background-color: #ffedf2;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        .day-cell:hover {
+          background-color: #fafafa;
+          border-color: #e1e1e1;
         }
 
-        .appointment-item.completed {
-          border-left-color: #4caf50;
-          background-color: #f1f8e9;
+        .day-cell.other-month {
+          background-color: #f9f9f9;
+          color: #aaa;
         }
 
-        .appointment-time {
-          width: 60px;
+        .day-cell.today {
+          border-color: #e62e69;
+          background-color: #fff8fa;
+          position: relative;
+        }
+
+        .day-cell.today::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background-color: #e62e69;
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+        }
+
+        .day-number {
           font-weight: 500;
+          font-size: 1rem;
           color: #333;
-          font-family: 'Inter', sans-serif;
+          margin-bottom: 0.5rem;
+          display: inline-block;
         }
 
-        .appointment-info {
-          flex: 1;
-        }
-
-        .appointment-client {
-          font-weight: 600;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .appointment-service {
-          font-size: 0.9rem;
-          color: #666;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .appointment-value {
-          font-weight: 500;
-          color: #2e7d32;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .no-appointments {
-          padding: 1rem;
-          text-align: center;
-          color: #666;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .loading {
-          padding: 2rem;
-          text-align: center;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .error-container {
-          padding: 1.5rem;
-          text-align: center;
-        }
-
-        .error-message {
-          background-color: #ffebee;
-          color: #c62828;
-          padding: 1rem;
-          border-radius: 4px;
-          margin-bottom: 1rem;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .retry-button {
+        .appointment-count {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           background-color: #e62e69;
           color: white;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 4px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin: 0 auto;
-          font-family: 'Inter', sans-serif;
+          font-size: 0.7rem;
+          font-weight: 500;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          margin-left: 0.5rem;
         }
 
-        .retry-button:disabled {
-          background-color: #f5a5c0;
-          cursor: not-allowed;
+        .appointment-preview {
+          font-size: 0.8rem;
+          color: #555;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-bottom: 0.25rem;
+          text-align: left;
         }
 
-        .retry-icon {
-          animation: ${isRetrying ? 'spin 1s linear infinite' : 'none'};
+        .more-appointments {
+          font-size: 0.75rem;
+          color: #e62e69;
+          font-weight: 500;
+          text-align: center;
+          margin-top: 0.25rem;
         }
 
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        /* Modal Styles */
-        .appointment-modal-backdrop {
+        .day-detail-modal {
           position: fixed;
           top: 0;
           left: 0;
@@ -607,70 +465,158 @@ export default function VisaoMensal({ userId, refreshTrigger, onAppointmentUpdat
           z-index: 1000;
         }
 
-        .appointment-modal {
+        .modal-content {
           background-color: white;
-          border-radius: 8px;
-          padding: 2rem;
-          width: 100%;
+          width: 90%;
           max-width: 500px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-          font-family: 'Inter', sans-serif;
+          border-radius: 8px;
+          padding: 1.5rem;
+          position: relative;
+          max-height: 90vh;
+          overflow-y: auto;
         }
 
-        .appointment-modal h3 {
-          color: #e62e69;
-          margin-top: 0;
-          margin-bottom: 1.5rem;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .appointment-details {
-          margin-bottom: 2rem;
-        }
-
-        .appointment-details p {
-          margin: 0.5rem 0;
-          font-family: 'Inter', sans-serif;
-        }
-
-        .status {
-          padding: 0.5rem;
-          border-radius: 4px;
-          background-color: ${selectedAppointment?.completed ? '#e8f5e9' : '#fff8fa'};
-          color: ${selectedAppointment?.completed ? '#2e7d32' : '#c2185b'};
-        }
-
-        .modal-actions {
-          display: flex;
-          gap: 1rem;
-          justify-content: flex-end;
-        }
-
-        .action-button {
-          padding: 0.75rem 1.5rem;
-          border-radius: 4px;
+        .close-button {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          background: none;
           border: none;
+          font-size: 1.5rem;
           cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-weight: 500;
-          font-family: 'Inter', sans-serif;
+          color: #666;
         }
 
-        .action-button.complete {
-          background-color: #4caf50;
-          color: white;
-        }
-
-        .action-button.delete {
-          background-color: #f44336;
-          color: white;
-        }
-
-        .action-button.close {
-          background-color: #e0e0e0;
+        .modal-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          margin-bottom: 1.5rem;
           color: #333;
+          text-align: center;
+        }
+
+        .appointments-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .appointment-item {
+          padding: 1rem;
+          border-left: 4px solid #e62e69;
+          background-color: #fff;
+          border-radius: 4px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .appointment-item:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .appointment-item.completed {
+          border-left-color: #4caf50;
+        }
+
+        .appointment-time {
+          font-weight: 600;
+          color: #e62e69;
+          margin-bottom: 0.25rem;
+        }
+
+        .appointment-item.completed .appointment-time {
+          color: #4caf50;
+        }
+
+        .appointment-client {
+          font-weight: 500;
+          color: #333;
+          margin-bottom: 0.25rem;
+        }
+
+        .appointment-service {
+          color: #666;
+          font-size: 0.9rem;
+        }
+
+        .appointment-value {
+          font-weight: 500;
+          color: #333;
+          margin-top: 0.5rem;
+        }
+
+        .no-appointments {
+          text-align: center;
+          padding: 2rem;
+          color: #666;
+        }
+
+        @media (max-width: 768px) {
+          .header {
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-start;
+          }
+          
+          .date-nav {
+            width: 100%;
+            justify-content: space-between;
+          }
+          
+          .calendar-grid {
+            gap: 0.25rem;
+          }
+          
+          .day-cell {
+            min-height: 80px;
+            padding: 0.25rem;
+          }
+          
+          .day-number {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+          }
+          
+          .appointment-count {
+            width: 18px;
+            height: 18px;
+            font-size: 0.65rem;
+          }
+          
+          .appointment-preview {
+            font-size: 0.7rem;
+            margin-bottom: 0.2rem;
+          }
+          
+          .more-appointments {
+            font-size: 0.7rem;
+          }
+          
+          .day-header {
+            font-size: 0.7rem;
+            padding: 0.25rem;
+          }
+          
+          .modal-content {
+            width: 95%;
+            padding: 1rem;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .day-cell {
+            min-height: 60px;
+          }
+          
+          .appointment-preview {
+            display: none;
+          }
+          
+          .day-number {
+            font-size: 0.8rem;
+          }
         }
       `}</style>
     </div>

@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import VisaoSemanal from './components/VisaoSemanal';
 import VisaoMensal from './components/VisaoMensal';
+import VisaoDiaria from './components/VisaoDiaria';
 import NovoAgendamento from './components/NovoAgendamento';
 
 // Componente de carregamento para o Suspense
@@ -39,7 +40,7 @@ function CalendarioContent() {
   const isDemo = searchParams.get('demo') === 'true';
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeView, setActiveView] = useState('semana'); // 'semana' ou 'mes'
+  const [activeView, setActiveView] = useState('dia'); // 'dia', 'semana' ou 'mes'
 
   useEffect(() => {
     // Verificar se o usuário está autenticado ou se está no modo demo
@@ -95,6 +96,12 @@ function CalendarioContent() {
 
       <div className="tabs">
         <button 
+          className={`tab-button ${activeView === 'dia' ? 'active' : ''}`}
+          onClick={() => setActiveView('dia')}
+        >
+          Visão Diária
+        </button>
+        <button 
           className={`tab-button ${activeView === 'semana' ? 'active' : ''}`}
           onClick={() => setActiveView('semana')}
         >
@@ -109,7 +116,15 @@ function CalendarioContent() {
       </div>
 
       <div className="content-section">
-        {activeView === 'semana' ? (
+        {activeView === 'dia' ? (
+          <div className="day-view-container">
+            <VisaoDiaria 
+              userId={userId} 
+              refreshTrigger={refreshTrigger}
+              onAppointmentUpdated={handleDataUpdated}
+            />
+          </div>
+        ) : activeView === 'semana' ? (
           <div className="week-view-container">
             <VisaoSemanal 
               userId={userId} 
@@ -141,26 +156,26 @@ function CalendarioContent() {
         .calendario-container {
           max-width: 1200px;
           margin: 0 auto;
-          padding: 2rem;
+          padding: 1rem;
           font-family: 'Inter', sans-serif;
         }
         
         .page-header {
           text-align: center;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
           position: relative;
         }
         
         h1 {
           color: #e62e69;
-          font-size: 2rem;
+          font-size: 1.8rem;
           margin-bottom: 0.5rem;
           font-family: 'Inter', sans-serif;
         }
         
         .subtitle {
           color: #666;
-          font-size: 1.1rem;
+          font-size: 1rem;
           font-family: 'Inter', sans-serif;
         }
         
@@ -178,21 +193,35 @@ function CalendarioContent() {
         
         .tabs {
           display: flex;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
           border-bottom: 1px solid #eee;
+          overflow-x: auto;
+          scrollbar-width: thin;
+          -webkit-overflow-scrolling: touch;
+        }
+        
+        .tabs::-webkit-scrollbar {
+          height: 4px;
+        }
+        
+        .tabs::-webkit-scrollbar-thumb {
+          background-color: rgba(0,0,0,0.2);
+          border-radius: 4px;
         }
         
         .tab-button {
-          padding: 0.75rem 1.5rem;
+          padding: 0.75rem 1rem;
           background: none;
           border: none;
           border-bottom: 3px solid transparent;
-          font-size: 1rem;
+          font-size: 0.9rem;
           font-weight: 500;
           color: #666;
           cursor: pointer;
           transition: all 0.2s;
           font-family: 'Inter', sans-serif;
+          white-space: nowrap;
+          flex-shrink: 0;
         }
         
         .tab-button.active {
@@ -205,14 +234,14 @@ function CalendarioContent() {
         }
         
         .content-section {
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
         }
         
         .new-appointment-container {
           background-color: #fff;
           border-radius: 8px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          margin-top: 2rem;
+          margin-top: 1.5rem;
         }
         
         .loading-container {
@@ -223,11 +252,53 @@ function CalendarioContent() {
         }
         
         .loading {
-          padding: 2rem;
+          padding: 1.5rem;
           background-color: #f9f9f9;
           border-radius: 8px;
           text-align: center;
           font-family: 'Inter', sans-serif;
+        }
+        
+        @media (max-width: 768px) {
+          .calendario-container {
+            padding: 0.75rem;
+          }
+          
+          h1 {
+            font-size: 1.5rem;
+          }
+          
+          .subtitle {
+            font-size: 0.9rem;
+          }
+          
+          .tab-button {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+          }
+          
+          .new-appointment-container {
+            margin-top: 1rem;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .calendario-container {
+            padding: 0.5rem;
+          }
+          
+          h1 {
+            font-size: 1.3rem;
+          }
+          
+          .subtitle {
+            font-size: 0.8rem;
+          }
+          
+          .tab-button {
+            padding: 0.5rem 0.6rem;
+            font-size: 0.8rem;
+          }
         }
       `}</style>
     </div>
