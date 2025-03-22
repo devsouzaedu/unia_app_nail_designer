@@ -440,6 +440,8 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           -webkit-overflow-scrolling: touch;
           scrollbar-width: thin;
           scroll-snap-type: x mandatory;
+          touch-action: pan-x;
+          user-select: none;
         }
         
         .time-column, .day-column {
@@ -659,7 +661,12 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           .weekly-calendar {
             min-width: 700px;
             scroll-padding: 8px;
-            -ms-overflow-style: none;  /* IE and Edge */
+            -ms-overflow-style: none;
+            cursor: grab;
+          }
+          
+          .weekly-calendar:active {
+            cursor: grabbing;
           }
           
           .weekly-calendar::-webkit-scrollbar {
@@ -669,6 +676,19 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           .weekly-calendar::-webkit-scrollbar-thumb {
             background-color: rgba(230, 46, 105, 0.3);
             border-radius: 4px;
+          }
+          
+          .day-column {
+            min-width: 90px !important;
+            scroll-snap-align: start;
+          }
+          
+          .time-column {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background-color: #f9f9f9;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
           }
           
           .header {

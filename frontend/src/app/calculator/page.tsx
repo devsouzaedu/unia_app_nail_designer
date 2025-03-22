@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import AppointmentForm from './components/AppointmentForm';
 import AppointmentList from './components/AppointmentList';
 import EarningsStats from './components/EarningsStats';
+import ExportReport from './components/ExportReport';
 // Removendo temporariamente a importação do MonthlyCalendar
 // import MonthlyCalendar from './components/MonthlyCalendar';
 
@@ -114,6 +115,10 @@ function CalculatorContent() {
             userId={userId} 
             onAppointmentAdded={handleDataUpdated} 
           />
+          
+          <div className="export-section">
+            <ExportReport userId={userId} />
+          </div>
         </div>
         
         <div className="stats-section">
@@ -254,6 +259,10 @@ function CalculatorContent() {
         
         .auth-link:hover {
           background-color: #d0225e;
+        }
+        
+        .export-section {
+          margin-top: 2rem;
         }
       `}</style>
     </div>
