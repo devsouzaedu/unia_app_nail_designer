@@ -38,12 +38,13 @@ interface VisaoSemanalProps {
 export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpdated }: VisaoSemanalProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
-  // Estados para rolagem horizontal
+  // Estados para rolagem
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
+  const [startY, setStartY] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const [lastTouchY, setLastTouchY] = useState(0);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [dragDirection, setDragDirection] = useState<'none' | 'horizontal' | 'vertical'>('none');
   
   // Estados para dados e UI
   const [currentWeek, setCurrentWeek] = useState(new Date());
@@ -157,8 +158,8 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
   const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 0 });
   const daysInWeek = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-  // Criar array com horários de 8:00 às 20:00
-  const timeSlots = Array.from({ length: 13 }, (_, i) => i + 8);
+  // Criar array com horários de 6:00 às 22:00
+  const timeSlots = Array.from({ length: 17 }, (_, i) => i + 6);
 
   // Função para obter agendamentos de um dia específico e horário específico
   const getAppointmentsForTimeSlot = (day: Date, hour: number) => {
@@ -169,7 +170,7 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
     });
   };
 
-  // ====================== FUNÇÕES PARA ROLAGEM HORIZONTAL ======================
+  // ====================== FUNÇÕES PARA ROLAGEM ======================
   
   // Tratamento de eventos de toque (mobile)
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -177,8 +178,10 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
     
     setIsDragging(true);
     setStartX(e.touches[0].pageX);
-    setLastTouchY(e.touches[0].pageY);
+    setStartY(e.touches[0].pageY);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
+    setScrollTop(scrollContainerRef.current.scrollTop);
+    setDragDirection('none');
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -187,28 +190,29 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
     const x = e.touches[0].pageX;
     const y = e.touches[0].pageY;
     const deltaX = startX - x;
-    const deltaY = lastTouchY - y;
+    const deltaY = startY - y;
     
-    // Se ainda não começou a rolar, determine a direção
-    if (!isScrolling) {
+    // Determinar direção do arrasto se ainda não definida
+    if (dragDirection === 'none') {
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // Rolagem horizontal
-        e.preventDefault();
-        scrollContainerRef.current.scrollLeft = scrollLeft + deltaX;
+        setDragDirection('horizontal');
+      } else {
+        setDragDirection('vertical');
       }
-      setIsScrolling(true);
-    } else {
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // Continua rolagem horizontal
-        e.preventDefault();
-        scrollContainerRef.current.scrollLeft = scrollLeft + deltaX;
-      }
+    }
+    
+    // Aplicar rolagem baseada na direção
+    if (dragDirection === 'horizontal') {
+      e.preventDefault();
+      scrollContainerRef.current.scrollLeft = scrollLeft + deltaX;
+    } else if (dragDirection === 'vertical') {
+      scrollContainerRef.current.scrollTop = scrollTop + deltaY;
     }
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
-    setIsScrolling(false);
+    setDragDirection('none');
   };
 
   // Tratamento de eventos de mouse (desktop)
@@ -217,9 +221,11 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
     
     setIsDragging(true);
     setStartX(e.pageX);
+    setStartY(e.pageY);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
+    setScrollTop(scrollContainerRef.current.scrollTop);
+    setDragDirection('none');
     
-    // Mudar o cursor
     document.body.style.cursor = 'grabbing';
   };
 
@@ -227,10 +233,26 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
     if (!isDragging || !scrollContainerRef.current) return;
     
     const x = e.pageX;
-    const distance = (startX - x) * 1.5;
-    scrollContainerRef.current.scrollLeft = scrollLeft + distance;
+    const y = e.pageY;
+    const deltaX = startX - x;
+    const deltaY = startY - y;
     
-    // Impedir a seleção de texto durante o arrasto
+    // Determinar direção do arrasto se ainda não definida
+    if (dragDirection === 'none') {
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        setDragDirection('horizontal');
+      } else {
+        setDragDirection('vertical');
+      }
+    }
+    
+    // Aplicar rolagem baseada na direção
+    if (dragDirection === 'horizontal') {
+      scrollContainerRef.current.scrollLeft = scrollLeft + deltaX;
+    } else if (dragDirection === 'vertical') {
+      scrollContainerRef.current.scrollTop = scrollTop + deltaY;
+    }
+    
     e.preventDefault();
   };
 
@@ -314,7 +336,7 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         </div>
       ) : (
         <div className="calendar-wrapper">
-          <div className="swipe-helper">← Deslize para ver mais →</div>
+          <div className="swipe-helper">← Deslize para navegar →</div>
           <div 
             className={`weekly-calendar ${isDragging ? 'grabbing' : ''}`}
             ref={scrollContainerRef}
@@ -561,20 +583,19 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           position: absolute;
           bottom: 10px;
           right: 10px;
-          background-color: rgba(230, 46, 105, 0.8);
+          background-color: rgba(230, 46, 105, 0.9);
           color: white;
           padding: 4px 10px;
           border-radius: 20px;
           font-size: 12px;
           z-index: 10;
-          opacity: 0.8;
-          animation: fade-in-out 2s infinite ease-in-out;
+          animation: fade-out 3s forwards;
           pointer-events: none;
         }
         
-        @keyframes fade-in-out {
-          0%, 100% { opacity: 0.8; }
-          50% { opacity: 0.3; }
+        @keyframes fade-out {
+          0%, 80% { opacity: 1; }
+          100% { opacity: 0; }
         }
         
         .weekly-calendar {
@@ -584,7 +605,7 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           overflow: auto;
           height: 100%;
           -webkit-overflow-scrolling: touch;
-          scroll-snap-type: x mandatory;
+          scroll-snap-type: both mandatory;
           scroll-behavior: smooth;
           scrollbar-width: thin;
           scrollbar-color: rgba(230, 46, 105, 0.3) transparent;
@@ -592,7 +613,7 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           -webkit-user-select: none;
           -ms-user-select: none;
           -moz-user-select: none;
-          touch-action: pan-x pan-y;
+          touch-action: none;
           cursor: grab;
         }
         
@@ -669,7 +690,7 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           height: 60px;
           border-bottom: 1px solid #eee;
           padding: 0.25rem;
-          overflow: hidden;
+          position: relative;
         }
         
         .time-column .time-slot {
@@ -854,10 +875,6 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
             max-height: calc(100vh - 150px);
           }
           
-          .weekly-calendar {
-            touch-action: manipulation;
-          }
-          
           .day-column {
             min-width: 100px;
           }
@@ -866,17 +883,22 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
             height: 50px;
           }
           
-          .appointment {
-            font-size: 0.7rem;
-            padding: 0.15rem 0.3rem;
+          .swipe-helper {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            background-color: rgba(230, 46, 105, 0.9);
+            color: white;
+            border-radius: 20px;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 10;
+            animation: fade-out 3s forwards;
           }
           
-          .client-name {
-            font-size: 0.75rem;
-          }
-          
-          .service {
-            font-size: 0.65rem;
+          @keyframes fade-out {
+            0%, 80% { opacity: 1; }
+            100% { opacity: 0; }
           }
         }
       `}</style>
