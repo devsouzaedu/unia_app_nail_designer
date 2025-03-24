@@ -42,6 +42,8 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [lastTouchY, setLastTouchY] = useState(0);
   
   // Estados para dados e UI
   const [currentWeek, setCurrentWeek] = useState(new Date());
@@ -175,22 +177,38 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
     
     setIsDragging(true);
     setStartX(e.touches[0].pageX);
+    setLastTouchY(e.touches[0].pageY);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging || !scrollContainerRef.current) return;
     
-    // Evita o comportamento padrão (scroll da página)
-    e.preventDefault();
-    
     const x = e.touches[0].pageX;
-    const distance = (startX - x) * 1.5; // Aumentar a sensibilidade do scroll
-    scrollContainerRef.current.scrollLeft = scrollLeft + distance;
+    const y = e.touches[0].pageY;
+    const deltaX = startX - x;
+    const deltaY = lastTouchY - y;
+    
+    // Se ainda não começou a rolar, determine a direção
+    if (!isScrolling) {
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Rolagem horizontal
+        e.preventDefault();
+        scrollContainerRef.current.scrollLeft = scrollLeft + deltaX;
+      }
+      setIsScrolling(true);
+    } else {
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Continua rolagem horizontal
+        e.preventDefault();
+        scrollContainerRef.current.scrollLeft = scrollLeft + deltaX;
+      }
+    }
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
+    setIsScrolling(false);
   };
 
   // Tratamento de eventos de mouse (desktop)
@@ -420,6 +438,11 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         .visao-semanal-container {
           font-family: 'Inter', sans-serif;
           margin-bottom: 1.5rem;
+          height: 100%;
+          max-height: calc(100vh - 200px);
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
         }
         
         .header {
@@ -528,8 +551,10 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         
         .calendar-wrapper {
           position: relative;
-          width: 100%;
+          flex: 1;
           overflow: hidden;
+          border-radius: 8px;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
         
         .swipe-helper {
@@ -556,18 +581,18 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           display: flex;
           border: 1px solid #eee;
           border-radius: 8px;
-          overflow-x: auto;
+          overflow: auto;
+          height: 100%;
           -webkit-overflow-scrolling: touch;
           scroll-snap-type: x mandatory;
           scroll-behavior: smooth;
           scrollbar-width: thin;
           scrollbar-color: rgba(230, 46, 105, 0.3) transparent;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
           user-select: none;
           -webkit-user-select: none;
           -ms-user-select: none;
           -moz-user-select: none;
-          touch-action: pan-x;
+          touch-action: pan-x pan-y;
           cursor: grab;
         }
         
@@ -577,6 +602,7 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         
         .weekly-calendar::-webkit-scrollbar {
           height: 6px;
+          width: 6px;
         }
         
         .weekly-calendar::-webkit-scrollbar-thumb {
@@ -586,12 +612,6 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         
         .weekly-calendar::-webkit-scrollbar-track {
           background: transparent;
-        }
-        
-        .time-column, .day-column {
-          flex: 1;
-          min-width: 100px;
-          border-right: 1px solid #eee;
         }
         
         .time-column {
@@ -604,6 +624,9 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         }
         
         .day-column {
+          flex: 1;
+          min-width: 120px;
+          border-right: 1px solid #eee;
           scroll-snap-align: start;
         }
         
@@ -826,60 +849,34 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           background-color: #e53935;
         }
         
-        /* Estilos específicos para mobile */
         @media (max-width: 768px) {
+          .visao-semanal-container {
+            max-height: calc(100vh - 150px);
+          }
+          
           .weekly-calendar {
-            min-width: auto;
-            width: 100%;
+            touch-action: manipulation;
           }
           
           .day-column {
-            min-width: 90px !important;
-          }
-          
-          .header {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-          
-          .date-nav {
-            width: 100%;
-            justify-content: space-between;
-            margin-bottom: 0.75rem;
-          }
-          
-          .actions {
-            width: 100%;
-            justify-content: flex-end;
-            margin-top: 0.25rem;
-          }
-          
-          .day-header {
-            height: 50px;
-            padding: 0.25rem;
+            min-width: 100px;
           }
           
           .time-slot {
             height: 50px;
           }
           
-          .modal-content {
-            width: 95%;
-            padding: 1rem;
+          .appointment {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.3rem;
           }
           
-          .detail-row {
-            flex-direction: column;
+          .client-name {
+            font-size: 0.75rem;
           }
           
-          .label {
-            width: 100%;
-            margin-bottom: 0.25rem;
-          }
-          
-          .swipe-helper {
-            font-size: 10px;
-            padding: 3px 8px;
+          .service {
+            font-size: 0.65rem;
           }
         }
       `}</style>
