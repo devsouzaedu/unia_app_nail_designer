@@ -49,26 +49,8 @@ const tools = [
 export default function FerramentasPage() {
   return (
     <div className="page-container">
-      <div className="backdrop-blur"></div>
       <div className="content">
         <h1>Ferramentas</h1>
-        
-        <div className="tools-nav">
-          {tools.map((tool, index) => (
-            <Link 
-              key={tool.name} 
-              href={tool.link}
-              className={`nav-item ${tool.disabled ? "disabled" : ""}`}
-              style={{ 
-                backgroundColor: `${tool.color}DD`,
-                animationDelay: `${index * 0.1}s` 
-              }}
-            >
-              <div className="icon">{tool.icon}</div>
-              <span className="nav-text">{tool.name}</span>
-            </Link>
-          ))}
-        </div>
         
         <div className="cards">
           {tools.map((tool, index) => (
@@ -98,21 +80,23 @@ export default function FerramentasPage() {
                   className="card-link"
                   style={{
                     background: `linear-gradient(135deg, ${tool.color}, ${tool.color}DD)`,
-                    padding: '1rem 2rem',
+                    padding: '0.75rem 1.5rem',
                     color: 'white',
                     borderRadius: '10px',
-                    fontSize: '1.1rem',
+                    fontSize: '1rem',
                     fontWeight: '600',
                     textTransform: 'uppercase',
                     display: 'block',
-                    width: '100%',
+                    width: 'auto',
                     textAlign: 'center',
-                    margin: '1rem 0',
+                    margin: '1rem auto',
                     transition: 'all 0.3s ease',
                     letterSpacing: '1px',
                     border: '2px solid transparent',
                     textDecoration: 'none',
-                    boxShadow: `0 4px 6px -1px ${tool.color}40`
+                    boxShadow: `0 4px 6px -1px ${tool.color}40`,
+                    minWidth: '120px',
+                    maxWidth: '200px'
                   }}
                 >
                   Acessar
@@ -131,16 +115,7 @@ export default function FerramentasPage() {
           background: radial-gradient(circle at top right, #fff1f7, #fdf4f9);
           min-height: 100vh;
           font-family: 'Poppins', sans-serif;
-        }
-        
-        .backdrop-blur {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          backdrop-filter: blur(10px);
-          z-index: 0;
+          position: relative;
         }
         
         .content {
@@ -154,42 +129,6 @@ export default function FerramentasPage() {
           margin-bottom: 2rem;
           font-size: 2.5rem;
           font-weight: 600;
-        }
-        
-        .tools-nav {
-          display: flex;
-          gap: 1rem;
-          overflow-x: auto;
-          padding: 1rem 0;
-          margin-bottom: 2rem;
-        }
-        
-        .nav-item {
-          flex: 0 0 auto;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.75rem 1.25rem;
-          border-radius: 50px;
-          color: white;
-          text-decoration: none;
-          font-weight: 500;
-          transition: transform 0.2s, opacity 0.2s;
-          animation: fadeIn 0.5s ease forwards;
-          opacity: 0;
-        }
-        
-        .nav-item:hover {
-          transform: translateY(-2px);
-        }
-        
-        .nav-item.disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        
-        .icon {
-          font-size: 1.2rem;
         }
         
         .cards {
@@ -292,6 +231,12 @@ export default function FerramentasPage() {
           
           h1 {
             font-size: 2rem;
+          }
+          
+          .card-link {
+            width: 100% !important;
+            max-width: none !important;
+            padding: 0.75rem 1rem !important;
           }
         }
       `}</style>
