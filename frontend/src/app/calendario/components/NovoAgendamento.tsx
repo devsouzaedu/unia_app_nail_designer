@@ -158,219 +158,227 @@ export default function NovoAgendamento({ userId, onAppointmentAdded }: NovoAgen
   ];
 
   return (
-    <div className="appointment-form">
-      <h2><FaSave className="form-icon" /> Adicionar Novo Agendamento</h2>
+    <div className="novo-agendamento-container">
+      <style jsx global>{`
+        input, textarea, select {
+          font-size: 16px !important; /* Previne zoom no iOS */
+        }
+      `}</style>
       
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}
-      
-      <form onSubmit={handleSubmit}>
-        <div className="form-grid">
-          <div className="form-group">
-            <label htmlFor="clientName">
-              <FaRegUserCircle className="input-icon" /> Nome da Cliente:
-            </label>
-            <input
-              type="text"
-              id="clientName"
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
-              placeholder="Nome da cliente"
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="service">
-              <FaHandSparkles className="input-icon" /> Tipo de Serviço:
-            </label>
-            <select
-              id="service"
-              value={service}
-              onChange={handleTipoServicoChange}
-              required
-            >
-              <option value="">Selecione um serviço</option>
-              {TIPOS_SERVICOS.map(tipo => (
-                <option key={tipo.id} value={tipo.id}>
-                  {tipo.nome} {tipo.id !== 'outro' ? `(R$ ${tipo.valorSugerido.toFixed(2)})` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          {service === 'outro' && (
+      <div className="appointment-form">
+        <h2><FaSave className="form-icon" /> Adicionar Novo Agendamento</h2>
+        
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid">
             <div className="form-group">
-              <label htmlFor="customService">Nome do Serviço:</label>
+              <label htmlFor="clientName">
+                <FaRegUserCircle className="input-icon" /> Nome da Cliente:
+              </label>
               <input
                 type="text"
-                id="customService"
-                value={customService}
-                onChange={(e) => setCustomService(e.target.value)}
-                placeholder="Descreva o serviço"
+                id="clientName"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                placeholder="Nome da cliente"
                 required
               />
-            </div>
-          )}
-          
-          <div className="form-group">
-            <label htmlFor="value">
-              <FaCoins className="input-icon" /> Valor (R$):
-            </label>
-            <input
-              type="number"
-              id="value"
-              min="0"
-              step="0.01"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder="0,00"
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="date">
-              <FaRegCalendarAlt className="input-icon" /> Data:
-            </label>
-            <input
-              type="date"
-              id="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="time">
-              <FaRegClock className="input-icon" /> Horário:
-            </label>
-            <div className="time-input-container">
-              <input
-                type="time"
-                id="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                required
-              />
-              <div className="quick-time-options">
-                {horariosComuns.map(h => (
-                  <button 
-                    type="button" 
-                    key={h} 
-                    className="time-option"
-                    onClick={() => setTime(h)}
-                  >
-                    {h}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          <div className="form-group full-width">
-            <label htmlFor="color">
-              <FaPalette className="input-icon" /> Cor para identificação:
-            </label>
-            <div className="color-picker">
-              <input
-                type="color"
-                id="color"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-              />
-              <span className="color-preview" style={{ backgroundColor: color }}></span>
-            </div>
-          </div>
-          
-          <div className="form-group full-width">
-            <div className="ref-photos-header">
-              <label>
-                <FaCamera className="input-icon" /> Fotos de Referência:
-              </label>
-              <button 
-                type="button" 
-                onClick={abrirModalFotos}
-                className="add-photo-button"
-              >
-                Adicionar Fotos
-              </button>
             </div>
             
-            {fotosReferencia.length > 0 && (
-              <div className="photos-preview">
-                {fotosReferencia.map((url, index) => (
-                  <div key={index} className="photo-item">
-                    <img src={url} alt={`Referência ${index + 1}`} />
-                    <button 
-                      type="button" 
-                      className="remove-photo"
-                      onClick={() => removerFotoReferencia(url)}
-                    >
-                      ×
-                    </button>
-                  </div>
+            <div className="form-group">
+              <label htmlFor="service">
+                <FaHandSparkles className="input-icon" /> Tipo de Serviço:
+              </label>
+              <select
+                id="service"
+                value={service}
+                onChange={handleTipoServicoChange}
+                required
+              >
+                <option value="">Selecione um serviço</option>
+                {TIPOS_SERVICOS.map(tipo => (
+                  <option key={tipo.id} value={tipo.id}>
+                    {tipo.nome} {tipo.id !== 'outro' ? `(R$ ${tipo.valorSugerido.toFixed(2)})` : ''}
+                  </option>
                 ))}
+              </select>
+            </div>
+            
+            {service === 'outro' && (
+              <div className="form-group">
+                <label htmlFor="customService">Nome do Serviço:</label>
+                <input
+                  type="text"
+                  id="customService"
+                  value={customService}
+                  onChange={(e) => setCustomService(e.target.value)}
+                  placeholder="Descreva o serviço"
+                  required
+                />
               </div>
             )}
+            
+            <div className="form-group">
+              <label htmlFor="value">
+                <FaCoins className="input-icon" /> Valor (R$):
+              </label>
+              <input
+                type="number"
+                id="value"
+                min="0"
+                step="0.01"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="0,00"
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="date">
+                <FaRegCalendarAlt className="input-icon" /> Data:
+              </label>
+              <input
+                type="date"
+                id="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="time">
+                <FaRegClock className="input-icon" /> Horário:
+              </label>
+              <div className="time-input-container">
+                <input
+                  type="time"
+                  id="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  required
+                />
+                <div className="quick-time-options">
+                  {horariosComuns.map(h => (
+                    <button 
+                      type="button" 
+                      key={h} 
+                      className="time-option"
+                      onClick={() => setTime(h)}
+                    >
+                      {h}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="form-group full-width">
+              <label htmlFor="color">
+                <FaPalette className="input-icon" /> Cor para identificação:
+              </label>
+              <div className="color-picker">
+                <input
+                  type="color"
+                  id="color"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                />
+                <span className="color-preview" style={{ backgroundColor: color }}></span>
+              </div>
+            </div>
+            
+            <div className="form-group full-width">
+              <div className="ref-photos-header">
+                <label>
+                  <FaCamera className="input-icon" /> Fotos de Referência:
+                </label>
+                <button 
+                  type="button" 
+                  onClick={abrirModalFotos}
+                  className="add-photo-button"
+                >
+                  Adicionar Fotos
+                </button>
+              </div>
+              
+              {fotosReferencia.length > 0 && (
+                <div className="photos-preview">
+                  {fotosReferencia.map((url, index) => (
+                    <div key={index} className="photo-item">
+                      <img src={url} alt={`Referência ${index + 1}`} />
+                      <button 
+                        type="button" 
+                        className="remove-photo"
+                        onClick={() => removerFotoReferencia(url)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="form-group full-width">
+              <label htmlFor="notes">
+                <FaRegStickyNote className="input-icon" /> Observações:
+              </label>
+              <textarea
+                id="notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Detalhes adicionais, preferências da cliente, etc."
+              />
+            </div>
           </div>
           
-          <div className="form-group full-width">
-            <label htmlFor="notes">
-              <FaRegStickyNote className="input-icon" /> Observações:
-            </label>
-            <textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Detalhes adicionais, preferências da cliente, etc."
-            />
-          </div>
-        </div>
+          <button type="submit" className="submit-button" disabled={isLoading}>
+            {isLoading ? 'Adicionando...' : 'Adicionar Agendamento'}
+          </button>
+        </form>
         
-        <button type="submit" className="submit-button" disabled={isLoading}>
-          {isLoading ? 'Adicionando...' : 'Adicionar Agendamento'}
-        </button>
-      </form>
-      
-      {/* Modal para adicionar fotos de referência */}
-      {isModalOpen && (
-        <div className="modal-backdrop" onClick={fecharModalFotos}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h3>Adicionar Foto de Referência</h3>
-            <div className="photo-url-input">
-              <input
-                type="text"
-                value={fotoRefURL}
-                onChange={(e) => setFotoRefURL(e.target.value)}
-                placeholder="Cole a URL da imagem"
-              />
-              <button 
-                type="button"
-                onClick={adicionarFotoReferencia}
-                disabled={!fotoRefURL}
-              >
-                Adicionar
-              </button>
-            </div>
-            
-            <p className="photo-tip">
-              Dica: Busque imagens de referência e copie o endereço da imagem para adicionar aqui.
-            </p>
-            
-            <div className="modal-actions">
-              <button 
-                type="button"
-                onClick={fecharModalFotos}
-                className="close-modal"
-              >
-                Fechar
-              </button>
+        {/* Modal para adicionar fotos de referência */}
+        {isModalOpen && (
+          <div className="modal-backdrop" onClick={fecharModalFotos}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+              <h3>Adicionar Foto de Referência</h3>
+              <div className="photo-url-input">
+                <input
+                  type="text"
+                  value={fotoRefURL}
+                  onChange={(e) => setFotoRefURL(e.target.value)}
+                  placeholder="Cole a URL da imagem"
+                />
+                <button 
+                  type="button"
+                  onClick={adicionarFotoReferencia}
+                  disabled={!fotoRefURL}
+                >
+                  Adicionar
+                </button>
+              </div>
+              
+              <p className="photo-tip">
+                Dica: Busque imagens de referência e copie o endereço da imagem para adicionar aqui.
+              </p>
+              
+              <div className="modal-actions">
+                <button 
+                  type="button"
+                  onClick={fecharModalFotos}
+                  className="close-modal"
+                >
+                  Fechar
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       
       <style jsx>{`
         .appointment-form {
@@ -678,6 +686,13 @@ export default function NovoAgendamento({ userId, onAppointmentAdded }: NovoAgen
           
           .quick-time-options {
             grid-template-columns: repeat(3, 1fr);
+          }
+          
+          .form-group input,
+          .form-group select,
+          .form-group textarea {
+            font-size: 16px; /* Previne zoom no iOS */
+            -webkit-text-size-adjust: 100%;
           }
         }
       `}</style>
