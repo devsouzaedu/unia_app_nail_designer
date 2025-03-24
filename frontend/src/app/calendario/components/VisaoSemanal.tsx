@@ -461,10 +461,13 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           font-family: 'Inter', sans-serif;
           margin-bottom: 1.5rem;
           height: 100%;
-          max-height: calc(100vh - 200px);
+          max-height: calc(100vh - 180px);
           overflow: hidden;
           display: flex;
           flex-direction: column;
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
         
         .header {
@@ -576,7 +579,6 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           flex: 1;
           overflow: hidden;
           border-radius: 8px;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
         
         .swipe-helper {
@@ -605,16 +607,15 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           overflow: auto;
           height: 100%;
           -webkit-overflow-scrolling: touch;
-          scroll-snap-type: both mandatory;
+          scroll-snap-type: none;
           scroll-behavior: smooth;
           scrollbar-width: thin;
           scrollbar-color: rgba(230, 46, 105, 0.3) transparent;
           user-select: none;
           -webkit-user-select: none;
-          -ms-user-select: none;
-          -moz-user-select: none;
-          touch-action: none;
+          touch-action: pan-x pan-y;
           cursor: grab;
+          overscroll-behavior: contain;
         }
         
         .weekly-calendar.grabbing {
@@ -622,8 +623,8 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         }
         
         .weekly-calendar::-webkit-scrollbar {
-          height: 6px;
-          width: 6px;
+          height: 4px;
+          width: 4px;
         }
         
         .weekly-calendar::-webkit-scrollbar-thumb {
@@ -636,7 +637,7 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         }
         
         .time-column {
-          min-width: 60px;
+          min-width: 50px;
           background-color: #f9f9f9;
           position: sticky;
           left: 0;
@@ -646,17 +647,12 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         
         .day-column {
           flex: 1;
-          min-width: 120px;
+          min-width: 110px;
           border-right: 1px solid #eee;
-          scroll-snap-align: start;
-        }
-        
-        .day-column:last-child {
-          border-right: none;
         }
         
         .day-header {
-          height: 60px;
+          height: 50px;
           padding: 0.5rem;
           text-align: center;
           border-bottom: 1px solid #eee;
@@ -674,20 +670,20 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         }
         
         .day-name {
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           text-transform: uppercase;
           color: #666;
           margin-bottom: 0.25rem;
         }
         
         .day-number {
-          font-size: 1.2rem;
+          font-size: 1rem;
           font-weight: 500;
           color: #333;
         }
         
         .time-slot {
-          height: 60px;
+          height: 50px;
           border-bottom: 1px solid #eee;
           padding: 0.25rem;
           position: relative;
@@ -698,7 +694,8 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           align-items: center;
           justify-content: center;
           color: #666;
-          font-size: 0.8rem;
+          font-size: 0.75rem;
+          font-weight: 500;
         }
         
         .appointment {
@@ -706,13 +703,14 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
           color: white;
           border-radius: 4px;
           padding: 0.25rem 0.5rem;
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           cursor: pointer;
           margin-bottom: 0.25rem;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
           height: calc(100% - 0.5rem);
+          box-shadow: 0 2px 4px rgba(230, 46, 105, 0.2);
         }
         
         .appointment.completed {
@@ -733,7 +731,7 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         }
         
         .service {
-          font-size: 0.7rem;
+          font-size: 0.65rem;
           opacity: 0.9;
           white-space: nowrap;
           overflow: hidden;
@@ -872,19 +870,64 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
         
         @media (max-width: 768px) {
           .visao-semanal-container {
-            max-height: calc(100vh - 150px);
+            max-height: calc(100vh - 140px);
+            margin: 0;
+            border-radius: 0;
+          }
+          
+          .calendar-wrapper {
+            border-radius: 0;
+          }
+          
+          .weekly-calendar {
+            border-radius: 0;
+            touch-action: manipulation;
           }
           
           .day-column {
-            min-width: 100px;
+            min-width: 90px;
           }
           
           .time-slot {
-            height: 50px;
+            height: 45px;
+          }
+          
+          .day-header {
+            height: 45px;
+            padding: 0.25rem;
+          }
+          
+          .day-name {
+            font-size: 0.7rem;
+          }
+          
+          .day-number {
+            font-size: 1rem;
+          }
+          
+          .time-column {
+            min-width: 40px;
+          }
+          
+          .time-column .time-slot {
+            font-size: 0.7rem;
+          }
+          
+          .appointment {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.3rem;
+          }
+          
+          .client-name {
+            font-size: 0.7rem;
+          }
+          
+          .service {
+            font-size: 0.65rem;
           }
           
           .swipe-helper {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             padding: 4px 8px;
             background-color: rgba(230, 46, 105, 0.9);
             color: white;
@@ -894,11 +937,7 @@ export default function VisaoSemanal({ userId, refreshTrigger, onAppointmentUpda
             right: 10px;
             z-index: 10;
             animation: fade-out 3s forwards;
-          }
-          
-          @keyframes fade-out {
-            0%, 80% { opacity: 1; }
-            100% { opacity: 0; }
+            pointer-events: none;
           }
         }
       `}</style>
